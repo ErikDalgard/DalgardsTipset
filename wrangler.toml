@@ -1,6 +1,8 @@
-name = "fotbollstips"
+name = "dalgardstipset"
 compatibility_date = "2026-08-13"
-pages_build_output_dir = "public"
+
+[assets]
+directory = "./public"
 
 [[d1_databases]]
 binding = "DB"
