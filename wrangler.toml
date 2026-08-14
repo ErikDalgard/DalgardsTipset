@@ -1,8 +1,6 @@
 name = "dalgardstipset"
-compatibility_date = "2026-08-13"
-
-[assets]
-directory = "./public"
+pages_build_output_dir = "./public"
+compatibility_date = "2026-08-14"
 
 [[d1_databases]]
 binding = "DB"
