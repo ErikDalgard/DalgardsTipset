@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Fotbollstips</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Adminpanel</h1>
+  <p><a href="/">Till startsidan</a></p>
+
+  <section>
+    <h2>Turneringar</h2>
+    <ul id="tournament-list"></ul>
+
+    <h3>Skapa ny turnering</h3>
+    <form id="tournament-form">
+      <label for="name">Namn</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="start_date">Startdatum</label>
+      <input type="date" id="start_date" name="start_date">
+
+      <button type="submit">Skapa</button>
+      <p id="error-message" class="error"></p>
+    </form>
+  </section>
+
+    <section>
+    <h2>Lag</h2>
+
+    <label for="tournament-select">Turnering</label>
+    <select id="tournament-select"></select>
+
+    <ul id="team-list"></ul>
+
+    <h3>Lägg till lag</h3>
+    <form id="team-form">
+        <label for="team-name">Lagnamn</label>
+        <input type="text" id="team-name" name="team-name" required>
+
+        <label for="team-group">Grupp (t.ex. A)</label>
+        <input type="text" id="team-group" name="team-group" maxlength="1">
+
+        <button type="submit">Lägg till</button>
+        <p id="team-error-message" class="error"></p>
+    </form>
+    </section>
+
+    <section>
+    <h2>Matcher</h2>
+
+    <ul id="match-list"></ul>
+
+    <h3>Lägg till match</h3>
+    <form id="match-form">
+        <label for="home-team">Hemmalag</label>
+        <select id="home-team"></select>
+
+        <label for="away-team">Bortalag</label>
+        <select id="away-team"></select>
+
+        <label for="kickoff">Avspark</label>
+        <input type="datetime-local" id="kickoff" required>
+
+        <button type="submit">Lägg till match</button>
+        <p id="match-error-message" class="error"></p>
+    </form>
+    </section>
+
+  <script src="auth-guard.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
