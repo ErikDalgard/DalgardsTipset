@@ -1,0 +1,8 @@
+name = "fotbollstips"
+compatibility_date = "2026-08-13"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fotbollstips-db"
+database_id = "e0d1b974-f75e-4722-bcf0-acce19221c7d"
