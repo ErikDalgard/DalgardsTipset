@@ -1,0 +1,30 @@
+.login-page {
+  max-width: 320px;
+  margin: 4rem auto;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+#login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+#login-form input {
+  padding: 0.6rem;
+  font-size: 1rem;
+}
+
+#login-form button {
+  margin-top: 1rem;
+  padding: 0.7rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.error {
+  color: #c0392b;
+  min-height: 1.2em;
+}
