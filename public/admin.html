@@ -37,7 +37,8 @@
 
         <ul id="user-list" class="item-list"></ul>
 
-        <div class="card-form">
+        <button class="btn" id ="btn-show-edit-user-list"> Skapa spelare </button>
+        <div class="card-form" id = "user-list-card" hidden>
           <h3 id="user-form-title">Skapa spelare</h3>
 
           <form id="user-form">
@@ -66,8 +67,10 @@
               Skapa spelare
             </button>
 
-            <button type="button" id="delete-edit-btn" class="btn btn-danger" hidden>Radera spelare</button>
-            <button type="button" id="cancel-edit-btn" class="btn btn-secondary" hidden>Avbryt</button>
+            <button type="button" id="delete-edit-user-btn" class="btn btn-danger" hidden>Radera spelare</button>
+            <button type="button" id="cancel-edit-user-btn" class="btn btn-secondary" hidden>Avbryt</button>
+            <button type="button" id="cancel-card-user-layout" class="btn btn-secondary" hidden>Avbryt</button>
+
 
             <p id="user-error-message" class="error"></p>
 
@@ -81,10 +84,9 @@
         <h2>Turneringar</h2>
 
         <ul id="tournament-list" class="item-list"></ul>
-
-        <div class="card-form">
-          <h3>Skapa ny turnering</h3>
-
+        <button class="btn" id ="btn-show-edit-to-list"> Skapa turnering </button>
+        <div class="card-form" id = "to-list-card" hidden>
+          <h3 id="tournament-form-title">Skapa ny turnering</h3>
           <form id="tournament-form">
 
             <div class="form-group">
@@ -97,10 +99,18 @@
               <input type="date" id="start_date" name="start_date">
             </div>
 
-            <button type="submit" class="btn">
+            <button type="submit" class="btn" id="tournament-submit-btn">
               Skapa
             </button>
+            
+            <button type="button" id="delete-tournament-btn" class="btn btn-danger" hidden>
+              Radera turnering
+            </button>
+            <button type="button" id="cancel-tournament-edit-btn" class="btn btn-secondary" hidden>
+              Avbryt
+            </button>
 
+            <button type="button" id="cancel-card-tu-layout" class="btn btn-secondary" hidden>Avbryt</button>
             <p id="error-message" class="error"></p>
 
           </form>
