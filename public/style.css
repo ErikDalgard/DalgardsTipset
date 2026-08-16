@@ -386,6 +386,10 @@ section {
 .list li {
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .list li:last-child {
@@ -433,4 +437,59 @@ section {
   .site-nav {
     flex-wrap: wrap;
   }
+}
+
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+
+  transform: translateX(-50%) translateY(-150%);
+
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+
+  font-weight: 600;
+
+  z-index: 1000;
+
+  opacity: 0;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast.success {
+  background: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.toast.error {
+  background: var(--color-danger);
+  color: white;
+  border-color: var(--color-danger);
 }
