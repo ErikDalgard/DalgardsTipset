@@ -3,95 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin – Fotbollstips</title>
+  <title>Admin – Dalgardstipset</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>Adminpanel</h1>
-  <p><a href="/">Till startsidan</a></p>
-  <button id="logout-btn">Logga ut</button>
-  <section>
-    <h2>Spelare</h2>
-    <ul id="user-list"></ul>
 
-    <h3>Skapa spelare</h3>
-    <form id="user-form">
-      <label for="user-username">Användarnamn</label>
-      <input type="text" id="user-username" required>
+  <div class="page">
 
-      <label for="user-password">Lösenord</label>
-      <input type="text" id="user-password" required>
+    <!-- Sidhuvud -->
+    <header class="page-header">
+      <div>
+        <h1>Adminpanel</h1>
+      </div>
 
-      <label>
-        <input type="checkbox" id="user-is-admin">
-        Admin
-      </label>
+      <nav class="site-nav">
+        <a href="/" class="btn btn-secondary">Till startsidan</a>
+        <button id="logout-btn" class="btn btn-secondary">Logga ut</button>
+      </nav>
+    </header>
 
-      <button type="submit">Skapa spelare</button>
-      <p id="user-error-message" class="error"></p>
-    </form>
-  </section>
 
-  <section>
-    <h2>Turneringar</h2>
-    <ul id="tournament-list"></ul>
+    <main class="admin-content">
 
-    <h3>Skapa ny turnering</h3>
-    <form id="tournament-form">
-      <label for="name">Namn</label>
-      <input type="text" id="name" name="name" required>
+      <!-- Spelare -->
+      <section class="card">
+        <h2>Spelare</h2>
 
-      <label for="start_date">Startdatum</label>
-      <input type="date" id="start_date" name="start_date">
+        <ul id="user-list" class="item-list"></ul>
 
-      <button type="submit">Skapa</button>
-      <p id="error-message" class="error"></p>
-    </form>
-  </section>
+        <div class="card-form">
+          <h3>Skapa spelare</h3>
 
-    <section>
-    <h2>Lag</h2>
+          <form id="user-form">
 
-    <label for="tournament-select">Turnering</label>
-    <select id="tournament-select"></select>
+            <div class="form-group">
+              <label for="user-username">Användarnamn</label>
+              <input type="text" id="user-username" required>
+            </div>
 
-    <ul id="team-list"></ul>
+            <div class="form-group">
+              <label for="user-password">Lösenord</label>
+              <input type="text" id="user-password" required>
+            </div>
 
-    <h3>Lägg till lag</h3>
-    <form id="team-form">
-        <label for="team-name">Lagnamn</label>
-        <input type="text" id="team-name" name="team-name" required>
+            <div class="form-group form-checkbox">
+              <label>
+                <input type="checkbox" id="user-is-admin">
+                Admin
+              </label>
+            </div>
 
-        <label for="team-group">Grupp (t.ex. A)</label>
-        <input type="text" id="team-group" name="team-group" maxlength="1">
+            <button type="submit" class="btn">
+              Skapa spelare
+            </button>
 
-        <button type="submit">Lägg till</button>
-        <p id="team-error-message" class="error"></p>
-    </form>
-    </section>
+            <p id="user-error-message" class="error"></p>
 
-    <section>
-    <h2>Matcher</h2>
+          </form>
+        </div>
+      </section>
 
-    <ul id="match-list"></ul>
 
-    <h3>Lägg till match</h3>
-    <form id="match-form">
-        <label for="home-team">Hemmalag</label>
-        <select id="home-team"></select>
+      <!-- Turneringar -->
+      <section class="card">
+        <h2>Turneringar</h2>
 
-        <label for="away-team">Bortalag</label>
-        <select id="away-team"></select>
+        <ul id="tournament-list" class="item-list"></ul>
 
-        <label for="kickoff">Avspark</label>
-        <input type="datetime-local" id="kickoff" required>
+        <div class="card-form">
+          <h3>Skapa ny turnering</h3>
 
-        <button type="submit">Lägg till match</button>
-        <p id="match-error-message" class="error"></p>
-    </form>
-    </section>
+          <form id="tournament-form">
+
+            <div class="form-group">
+              <label for="name">Namn</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+              <label for="start_date">Startdatum</label>
+              <input type="date" id="start_date" name="start_date">
+            </div>
+
+            <button type="submit" class="btn">
+              Skapa
+            </button>
+
+            <p id="error-message" class="error"></p>
+
+          </form>
+        </div>
+      </section>
+
+
+      <!-- Lag -->
+      <section class="card">
+        <h2>Lag</h2>
+
+        <div class="form-group">
+          <label for="tournament-select">Turnering</label>
+          <select id="tournament-select"></select>
+        </div>
+
+        <ul id="team-list" class="item-list"></ul>
+
+        <div class="card-form">
+          <h3>Lägg till lag</h3>
+
+          <form id="team-form">
+
+            <div class="form-group">
+              <label for="team-name">Lagnamn</label>
+              <input
+                type="text"
+                id="team-name"
+                name="team-name"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="team-group">Grupp</label>
+              <input
+                type="text"
+                id="team-group"
+                name="team-group"
+                maxlength="1"
+                placeholder="T.ex. A"
+              >
+            </div>
+
+            <button type="submit" class="btn">
+              Lägg till
+            </button>
+
+            <p id="team-error-message" class="error"></p>
+
+          </form>
+        </div>
+      </section>
+
+
+      <!-- Matcher -->
+      <section class="card">
+        <h2>Matcher</h2>
+
+        <ul id="match-list" class="item-list"></ul>
+
+        <div class="card-form">
+          <h3>Lägg till match</h3>
+
+          <form id="match-form">
+
+            <div class="form-group">
+              <label for="home-team">Hemmalag</label>
+              <select id="home-team"></select>
+            </div>
+
+            <div class="form-group">
+              <label for="away-team">Bortalag</label>
+              <select id="away-team"></select>
+            </div>
+
+            <div class="form-group">
+              <label for="kickoff">Avspark</label>
+              <input type="datetime-local" id="kickoff" required>
+            </div>
+
+            <button type="submit" class="btn">
+              Lägg till match
+            </button>
+
+            <p id="match-error-message" class="error"></p>
+
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
 
   <script src="auth-guard.js"></script>
   <script src="admin.js"></script>
+
 </body>
 </html>

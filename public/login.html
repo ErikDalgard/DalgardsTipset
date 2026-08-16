@@ -3,23 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logga in – Fotbollstips</title>
+  <title>Logga in – Dalgardstipset</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
   <main class="login-page">
-    <h1>Fotbollstips</h1>
-    <form id="login-form">
-      <label for="username">Användarnamn</label>
-      <input type="text" id="username" name="username" required autocomplete="username">
-
-      <label for="password">Lösenord</label>
-      <input type="password" id="password" name="password" required autocomplete="current-password">
-
-      <button type="submit">Logga in</button>
-      <p id="error-message" class="error"></p>
-    </form>
+    <div class="login-card">
+      <h1>Dalgardstipset</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Användarnamn</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            autocomplete="username"
+          >
+        </div>
+        <div class="form-group">
+          <label for="password">Lösenord</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        <button type="submit" class="btn">
+          Logga in
+        </button>
+        <p id="error-message" class="error"></p>
+      </form>
+    </div>
   </main>
+
   <script src="login.js"></script>
+
 </body>
 </html>

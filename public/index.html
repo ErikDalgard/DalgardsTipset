@@ -1,16 +1,45 @@
 <!DOCTYPE html>
 <html lang="sv">
-<script src="auth-guard.js"></script>
 
 <head>
   <meta charset="UTF-8">
-  <title>Fotbollstips</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotbollstips – Dalgardstipset</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <button id="logout-btn">Logga ut</button>
-  <h1>Fotbollstips</h1>
-  <p id="status">Laddar...</p>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+
+      <a href="/" class="logo">
+        ⚽ Dalgardstipset
+      </a>
+      <nav class="site-nav">
+        <a href="admin.html" class="btn btn-secondary">
+          Admin
+        </a>
+        <button id="logout-btn" class="btn btn-danger">
+          Logga ut
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <h1 id="status">Laddar...</h1>
+
+    <!-- Matcher kommer här senare -->
+
+  </main>
+
+
+  <script src="auth-guard.js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
