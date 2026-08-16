@@ -3,3 +3,6 @@
   if (!user) return; // requireAuth har redan skickat vidare till login
   document.getElementById("status").textContent = `Inloggad som ${user.username}`;
 })();
+
+
+document.getElementById("logout-btn").addEventListener("click", logout);

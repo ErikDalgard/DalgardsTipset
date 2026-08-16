@@ -9,6 +9,8 @@
 
   await loadTournaments();
   await populateTournamentSelect();
+  await loadUsers();  
+
 })();
 
 // --- Turneringar ---
@@ -197,3 +199,47 @@ document.getElementById("match-form").addEventListener("submit", async (event) =
   document.getElementById("match-form").reset();
   await loadMatches();
 });
+
+// --- Spelare ---
+
+async function loadUsers() {
+  const response = await fetch("/api/admin/users", { credentials: "same-origin" });
+  const users = await response.json();
+
+  const list = document.getElementById("user-list");
+  list.innerHTML = "";
+  users.forEach(u => {
+    const li = document.createElement("li");
+    li.textContent = `${u.username}${u.is_admin ? " (admin)" : ""}`;
+    list.appendChild(li);
+  });
+}
+
+document.getElementById("user-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const errorMessage = document.getElementById("user-error-message");
+  errorMessage.textContent = "";
+
+  const username = document.getElementById("user-username").value;
+  const password = document.getElementById("user-password").value;
+  const is_admin = document.getElementById("user-is-admin").checked;
+
+  const response = await fetch("/api/admin/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ username, password, is_admin })
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    errorMessage.textContent = data.error || "Något gick fel";
+    return;
+  }
+
+  document.getElementById("user-form").reset();
+  await loadUsers();
+});
+
+
+document.getElementById("logout-btn").addEventListener("click", logout);

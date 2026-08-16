@@ -9,6 +9,28 @@
 <body>
   <h1>Adminpanel</h1>
   <p><a href="/">Till startsidan</a></p>
+  <button id="logout-btn">Logga ut</button>
+  <section>
+    <h2>Spelare</h2>
+    <ul id="user-list"></ul>
+
+    <h3>Skapa spelare</h3>
+    <form id="user-form">
+      <label for="user-username">Användarnamn</label>
+      <input type="text" id="user-username" required>
+
+      <label for="user-password">Lösenord</label>
+      <input type="text" id="user-password" required>
+
+      <label>
+        <input type="checkbox" id="user-is-admin">
+        Admin
+      </label>
+
+      <button type="submit">Skapa spelare</button>
+      <p id="user-error-message" class="error"></p>
+    </form>
+  </section>
 
   <section>
     <h2>Turneringar</h2>
