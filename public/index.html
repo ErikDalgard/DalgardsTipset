@@ -6,17 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dalgardstipset</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
 <header class="site-header">
   <div class="site-header-inner">
-    <a href="/" class="logo">Dalgardstipset</a>
-
+    <a href="/" class="logo">
+      <img src="icons/logo.png" alt="Dalgardstipset">
+    </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Meny">☰</button>
-
     <nav class="site-nav" id="site-nav">
       <a href="/" class="nav-link">Hem</a>
       <a href="mina-tips.html" class="nav-link">Mina tips</a>
@@ -35,6 +37,7 @@
   </main>
 
 
+  <script src="nav.js"></script>
   <script src="auth-guard.js"></script>
   <script src="app.js"></script>
 

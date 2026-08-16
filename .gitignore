@@ -3,3 +3,4 @@ node_modules/
 .env
 .dev.vars
 .DS_Storecookies.txt
+cookies.txt

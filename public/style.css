@@ -40,6 +40,8 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+
+--font-family-display: "Space Grotesk", var(--font-family);
 }
 
 
@@ -78,6 +80,14 @@ select {
    TYPOGRAFI
    ========================================================= */
 
+
+.logo,
+h1,
+h2 {
+--font-family-display: "Fredoka", 
+var(--font-family);
+
+}
 h1,
 h2,
 h3 {
@@ -129,31 +139,54 @@ a:hover {
    ========================================================= */
 
 .site-header {
-  background: var(--color-primary);
-  color: white;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
-  padding: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 0.5rem 1rem;  /* liten, fast padding - INTE kopplad till loggans storlek */
+  overflow: visible;      /* tillåt loggan sticka utanför */
+}
+
+.logo {
+  color: var(--color-primary-dark);
+}
+
+.logo:hover {
+  color: var(--color-primary-dark);
 }
 
 .nav-link {
-  color: white;
-  opacity: 0.85;
+  position: relative;
+  color: var(--color-text-muted);
   text-decoration: none;
   border-radius: var(--radius-md);
   padding: 0.5rem 0.9rem;
-  border-bottom: none;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: color 0.15s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: 0;
+  height: 3px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform 0.15s ease;
 }
 
 .nav-link:hover,
 .nav-link.active {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: none;
+  color: var(--color-primary-dark);
 }
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  transform: scaleX(1);
+}
+
 .site-header-inner {
   width: min(100% - 2rem, var(--max-width));
   min-height: 64px;
@@ -163,17 +196,21 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
 }
 
 .logo {
-  color: white;
-  text-decoration: none;
-  font-size: 2.55rem;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;   
+  margin: -2rem 0;   /* drar in headerns höjd, loggan "flyter" ut ovan/under */
+
 }
 
-.logo:hover {
-  color: white;
+.logo img {
+  height: clamp(90px, 30vw, 180px);  
+  width: auto;
+  display: block;
 }
 
 .site-nav {
@@ -355,9 +392,10 @@ input[type="checkbox"] {
 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
-  padding: 1rem;
+  padding: 2rem 8%;
+  gap: 4rem;
 }
 
 .login-card {
@@ -386,6 +424,59 @@ input[type="checkbox"] {
   color: var(--color-text-muted);
 }
 
+.login-brand {
+  flex: 0 0 60%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-brand img {
+  width: min(600px, 100%);
+}
+
+.login-card {
+  width: 40%;
+  max-width: 420px;
+
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+}
+
+@media (max-width: 700px) {
+  .login-page {
+    min-height: 100vh;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 2rem 1rem;
+    gap: 1rem;
+  }
+
+  .login-brand {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+  }
+
+  .login-brand img {
+    width: min(280px, 75vw);
+    max-width: 100%;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+  }
+}
 
 /* =========================================================
    SEKTIONER
@@ -458,8 +549,46 @@ section {
     padding: 1.1rem;
   }
 
+  .nav-toggle {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-primary-dark);
+  }
+
   .site-nav {
-    flex-wrap: wrap;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    top: 15%;
+    left: auto;
+    width: 30%;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    border-radius: 8%;
+
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+    visibility: hidden;
+
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease,
+      visibility 0.35s ease;
+  }
+
+  .site-nav.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
   }
 }
 
