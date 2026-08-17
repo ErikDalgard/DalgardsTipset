@@ -5,7 +5,7 @@ export async function onRequestGet(context) {
   if (error) return error;
 
   const { results } = await context.env.DB.prepare(
-    "SELECT id, name, status, start_date FROM tournaments ORDER BY start_date DESC"
+    "SELECT id, name, start_date, active FROM tournaments ORDER BY start_date DESC"
   ).all();
 
   return new Response(JSON.stringify(results), {
@@ -17,14 +17,20 @@ export async function onRequestPost(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;
 
-  const { name, start_date } = await context.request.json();
+  const { name, start_date, active} = await context.request.json();
   if (!name) {
     return new Response(JSON.stringify({ error: "Namn krävs" }), { status: 400 });
+}
+
+  // om den nya är aktiv så sätt alla andra till passiva
+  if (active === 1){
+    await context.env.DB.prepare("UPDATE tournaments SET active = 0").run();  
   }
 
+
   const result = await context.env.DB.prepare(
-    "INSERT INTO tournaments (name, status, start_date) VALUES (?, 'upcoming', ?)"
-  ).bind(name, start_date || null).run();
+    "INSERT INTO tournaments (name, start_date, active) VALUES (?, ?, ?)"
+  ).bind(name, start_date, active || 0).run();
 
   return new Response(JSON.stringify({ id: result.meta.last_row_id }), {
     headers: { "Content-Type": "application/json" }
@@ -36,7 +42,12 @@ export async function onRequestPatch(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;
 
-  const { id, name, status, start_date } = await context.request.json();
+  const { id, name, start_date, active } = await context.request.json();
+
+  // Bara en turnering får vara aktiv.
+  if (active === 1){
+    await context.env.DB.prepare("UPDATE tournaments SET active = 0").run();  
+  }
 
   if (!id) {
     return new Response(
@@ -60,11 +71,11 @@ export async function onRequestPatch(context) {
 
   try {
     await context.env.DB.prepare(
-      "UPDATE tournaments SET name = ?, status = ?, start_date = ? WHERE id = ?"
+      "UPDATE tournaments SET name = ?, start_date = ?, active = ? WHERE id = ?"
     ).bind(
       name,
-      status,
       start_date || null,
+      active,
       id
     ).run();
 
@@ -117,6 +128,7 @@ export async function onRequestDelete(context) {
     );
 
   } catch (e) {
+    console.error("DELETE tournament error:", e);
     return new Response(
       JSON.stringify({ error: "Kunde inte radera turneringen" }),
       {

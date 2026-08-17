@@ -34,8 +34,14 @@ export async function setupTournamentManagement(){
         const name = document.createElement("span");
         name.textContent = t.name;
 
-        const status = document.createElement("span");
-        status.textContent = t.status;
+        const active_text = document.createElement("span");
+        const active = t.active;
+        if (active === 0){
+            active_text.textContent = "Passiv";
+        }
+        else{
+            active_text.textContent = "Aktiv";
+        }
 
         const start_date = document.createElement("span");
         start_date.textContent =
@@ -58,7 +64,7 @@ export async function setupTournamentManagement(){
         });
 
         li.appendChild(name);
-        li.appendChild(status);
+        li.appendChild(active_text);
         li.appendChild(start_date);
         li.appendChild(button);
 
@@ -102,6 +108,8 @@ async function populateTournamentSelect(tournaments) {
 
     document.getElementById("start_date").value =
         tournament.start_date || "";
+
+    document.getElementById("active").checked = tournament.active === 1;
 
     document.getElementById("tournament-form-title").textContent =
         "Redigera turnering";
@@ -177,6 +185,8 @@ async function populateTournamentSelect(tournaments) {
 
         const start_date =
             document.getElementById("start_date").value;
+        
+        const active = document.getElementById("active").checked ? 1 : 0;
 
 
         // REDIGERA
@@ -193,7 +203,8 @@ async function populateTournamentSelect(tournaments) {
                 body: JSON.stringify({
                 id: editingTournamentId,
                 name,
-                start_date
+                start_date,
+                active
                 })
             }
             );
@@ -204,6 +215,8 @@ async function populateTournamentSelect(tournaments) {
             errorMessage.textContent =
                 data.error ||
                 "Kunde inte uppdatera turneringen";
+            
+            await loadTournaments();
 
             return;
             }
@@ -243,7 +256,8 @@ async function populateTournamentSelect(tournaments) {
             credentials: "same-origin",
             body: JSON.stringify({
                 name,
-                start_date
+                start_date,
+                active,
             })
             }
         );
@@ -294,6 +308,7 @@ async function populateTournamentSelect(tournaments) {
         if (!confirmed) {
             return;
         }
+        console.log("Deleting tournament:", editingTournamentId);
 
         const response = await fetch(
             "/api/admin/tournaments",
@@ -311,6 +326,8 @@ async function populateTournamentSelect(tournaments) {
 
         if (!response.ok) {
             const data = await response.json();
+                console.error("Delete error:", data);
+
 
             document
             .getElementById("error-message")
