@@ -1,5 +1,6 @@
 import { setupToggleCard, hideCard } from "./ui.js";
-import {populateTeamSelects, loadMatches} from "./matches.js"
+// import {populateTeamSelects, loadMatches} from "./matches.js";
+// import {loadTeams} from "./teams.js";
 
 // --- TURNERINGAR ---
 let editingTournamentId = null;
@@ -68,7 +69,7 @@ export async function setupTournamentManagement(){
     }
 
 
-    async function populateTournamentSelect(tournaments) {
+async function populateTournamentSelect(tournaments) {
     const select =
         document.getElementById("tournament-select");
 
@@ -89,41 +90,7 @@ export async function setupTournamentManagement(){
         select.value = previousValue;
     }
 
-    await loadTeams();
-    }
-
-
-    async function loadTeams() {
-    const tournamentId = document.getElementById("tournament-select").value;
-
-    if (!tournamentId) return;
-
-    const response = await fetch(
-        `/api/admin/teams?tournament_id=${tournamentId}`,
-        {
-        credentials: "same-origin"
-        }
-    );
-
-    const teams = await response.json();
-    const list = document.getElementById("team-list");
-    list.innerHTML = "";
-
-    teams.forEach(t => {
-        const li = document.createElement("li");
-
-        li.textContent =
-        `${t.name}${t.group_name ? " (Grupp " + t.group_name + ")" : ""}`;
-
-        list.appendChild(li);
-    });
-
-    await populateTeamSelects();
-    await loadMatches();
-    }
-
-    //Ändras turnering ska lagan laddas om!
-    document.getElementById("tournament-select").addEventListener("change", loadTeams);
+}
 
 
     // Funktion för att editera en turnering

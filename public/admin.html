@@ -129,8 +129,20 @@
         </div>
 
         <ul id="team-list" class="item-list"></ul>
+        <button class="btn" id="create-team-btn">Lägg till lag</button>
+        <button class="btn btn-secondary" id="edit-team-btn">Redigera lag</button>
 
-        <div class="card-form">
+        <div class="card-form" id="edit-team-card" hidden>
+          <h3>Redigera lag</h3>
+          <div class="form-group">
+            <label for="team-search">Sök lag</label>
+            <input type="text" id="team-search" placeholder="Skriv lagnamn">
+          </div>
+          <ul id="team-search-list" class="item-list"></ul>
+          <button type="button" id="cancel-edit-team-search" class="btn btn-secondary">Avbryt</button>
+        </div>
+
+        <div class="card-form" id = "create-team-card" hidden>
           <h3>Lägg till lag</h3>
 
           <form id="team-form">
@@ -157,8 +169,10 @@
             </div>
 
             <button type="submit" class="btn">
-              Lägg till
+              Skapa lag
             </button>
+            <button type="button" id="delete-edit-team-btn" class="btn btn-danger" hidden>Radera lag</button>
+            <button type="button" id="cancel-create-team" class="btn btn-secondary" hidden>Avbryt</button>
 
             <p id="team-error-message" class="error"></p>
 

@@ -1,5 +1,6 @@
 import { setupUserManagement } from "./users.js";
 import { setupTournamentManagement } from "./tournaments.js";
+import { setupTeamManagement } from "./teams.js";
 
 (async () => {
   const user = await requireAuth();
@@ -12,11 +13,11 @@ import { setupTournamentManagement } from "./tournaments.js";
 
 })();
 
-//Kör hela user.js filen
-setupUserManagement();
-
-//Kör hela tournament.js filen
-setupTournamentManagement();
+// Starta admin-delarna efter auth
+await setupUserManagement();
+await setupTournamentManagement();
+await setupTeamManagement();
+//await setupMatchManagement();
 
 
 
