@@ -12,6 +12,8 @@
 </head>
 
 <body>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 
 <header class="site-header">
   <div class="site-header-inner">
@@ -36,10 +38,19 @@
         <div class="card-header">
             <h2>Matcher</h2>
             <button id="filter-predictions-btn" class="btn btn-secondary">
-                Alla matcher
+                Visa alla
             </button>
         </div>
+        <ul class="item-list" id="match-list"></ul>
+    </section>
 
+      <section class="card">
+        <div class="card-header">
+            <h2>Utslagsfrågor</h2>
+            <button id="filter-predictions-btn" class="btn btn-secondary">
+                Visa alla
+            </button>
+        </div>
         <ul class="item-list" id="match-list"></ul>
     </section>
 
@@ -50,6 +61,8 @@
   <script src="js/shared/auth-guard.js"></script>
   <script src="js/shared/greeting.js"></script>
   <script src="js/mina-tips/mina-tips.js"></script>
+  <script src="js/shared/toast.js"></script>
+
 
 </body>
 </html>

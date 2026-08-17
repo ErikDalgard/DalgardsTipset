@@ -1,20 +1,31 @@
 let matches = [];
+let predictionMap = new Map();
 let showOnlyOpen = true;
 
-
-// HÄMTAR ALLA MATCHER
+// HÄMTAR ALLA MATCHER & predictions
 async function loadMatches() {
-    const response = await fetch("api/user/matches");
+    const [matchesResponse, predictionsResponse] = await Promise.all([
+        fetch("/api/user/matches", { credentials: "same-origin" }),
+        fetch("/api/user/match_predictions", { credentials: "same-origin" })
+    ]);
 
-    if (!response.ok) {
+    if (!matchesResponse.ok) {
         throw new Error("Kunde inte hämta matcher");
     }
 
-    matches = await response.json();
+    if (!predictionsResponse.ok) {
+        throw new Error("Kunde inte hämta predictions");
+    }
+
+    matches = await matchesResponse.json();
+    const predictions = await predictionsResponse.json();
+
+    predictionMap = new Map(
+        predictions.map(p => [p.match_id, p])
+    );
 
     renderMatches();
 }
-
 
 // RENDERAR MATCHER
 function renderMatches() {
@@ -93,6 +104,27 @@ function renderMatches() {
         awayPrediction.min = "0";
         awayPrediction.className = "prediction-input";
 
+        const existingPrediction = predictionMap.get(u.id);
+        if (existingPrediction){
+            homePrediction.value = existingPrediction.home_score;
+            awayPrediction.value = existingPrediction.away_score;
+        }
+
+        function savePrediction() {
+            if (homePrediction.value === "" || awayPrediction.value === "") {
+                return;
+            }
+
+            savePredictionToApi(
+                u.id,
+                Number(homePrediction.value),
+                Number(awayPrediction.value)
+            );
+        }
+
+        homePrediction.addEventListener("change", savePrediction);
+        awayPrediction.addEventListener("change", savePrediction);
+
         // DEADLINE
         const isLocked = new Date() >= new Date(u.deadline_at);
 
@@ -143,10 +175,38 @@ document.getElementById("filter-predictions-btn").addEventListener("click", () =
 
     const button = document.getElementById("filter-predictions-btn");
 
-    button.textContent = showOnlyOpen ? "Alla matcher" : "Att tippa";
-
+    button.textContent = showOnlyOpen ? "Visa alla" : "Att tippa";
     renderMatches();
 });
+
+
+async function savePredictionToApi(matchId, homeScore, awayScore) {
+    try {
+        const response = await fetch("/api/user/match_predictions", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                match_id: matchId,
+                home_score: homeScore,
+                away_score: awayScore
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error(data.error || "Kunde inte spara tipset");
+            return;
+        }
+        showToast("Sparat!")
+    } catch (error) {
+        console.error("Fel vid sparande av prediction:", error);
+    }
+}
+
 
 
 loadMatches();
