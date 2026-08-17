@@ -291,5 +291,6 @@ async function deleteTeam() {
     "cancel-create-team"
   );
 
+  document.getElementById("edit-team-btn").hidden = false;
   showToast("Laget har raderats!");
 }
