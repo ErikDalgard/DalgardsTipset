@@ -9,7 +9,7 @@
 </head>
 
 <body>
-
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
   <main class="login-page">
     <div class="login-brand">
       <img src="/icons/logo.png" alt="">
@@ -36,14 +36,22 @@
             autocomplete="current-password"
           >
         </div>
-        <button type="submit" class="btn">
+        <div>
+        <button type="submit" class="btn login-btn">
           Logga in
         </button>
+
+        <div class="forgot-password">
+          <a href="#" id="forgot-password-link">Glömt lösenord</a>
+        </div>
+        
+
         <p id="error-message" class="error"></p>
       </form>
     </div>
   </main>
 
+  <script src="toast.js"></script>
   <script src="login.js"></script>
 
 </body>

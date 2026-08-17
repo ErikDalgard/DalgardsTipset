@@ -386,29 +386,46 @@ input[type="checkbox"] {
 /* =========================================================
    LOGIN
    ========================================================= */
-
 .login-page {
   min-height: 100vh;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 2rem 8%;
   gap: 4rem;
+
+  background: 
+    radial-gradient(circle at center, rgba(46, 125, 50, 0.05) 0%, rgba(245, 247, 246, 0.8) 70%),
+    linear-gradient(135deg, #f4f7f5 0%, #e8f0ec 100%);
+  background-color: #f4f7f5;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-lg, 16px);
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(46, 125, 50, 0.15); 
 }
+
+.login-card input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+
+.login-card input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-top: 0.3rem;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
 
 .login-logo {
   text-align: center;
@@ -436,17 +453,13 @@ input[type="checkbox"] {
   width: min(600px, 100%);
 }
 
-.login-card {
-  width: 40%;
-  max-width: 420px;
-
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border);
+.login-btn{
+  
 }
+.forgot-password{
+  margin-top: 1rem;
+}
+
 
 @media (max-width: 700px) {
   .login-page {

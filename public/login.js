@@ -25,3 +25,11 @@ form.addEventListener("submit", async (event) => {
   // Inloggning lyckades → skicka vidare till startsidan
   window.location.href = "/";
 });
+
+document.getElementById("forgot-password-link").addEventListener("click", async ()=>{
+
+  const response = await fetch("/api/public/admin-contact", {credentials: "same-origin"});
+  const data = await response.json()
+
+  showToast(`Kontakta admin ${data.username}!`, "error");
+})
