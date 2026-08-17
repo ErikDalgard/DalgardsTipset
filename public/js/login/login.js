@@ -28,7 +28,7 @@ form.addEventListener("submit", async (event) => {
 
 document.getElementById("forgot-password-link").addEventListener("click", async ()=>{
 
-  const response = await fetch("/api/public/admin-contact", {credentials: "same-origin"});
+  const response = await fetch("/api/user/admin-contact", {credentials: "same-origin"});
   const data = await response.json()
 
   showToast(`Kontakta admin ${data.username}!`, "error");

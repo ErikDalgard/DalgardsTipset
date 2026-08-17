@@ -2,7 +2,7 @@
   // Skicka tillbaka person till log in sida om de ej är inloggade
   const user = await requireAuth();
   if (!user) return; 
-  document.getElementById("status").textContent = getGreeting(user.username);
+  document.getElementById("greeting").textContent = getGreeting(user.username);
 })();
 
 

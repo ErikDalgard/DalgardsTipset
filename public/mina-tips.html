@@ -29,10 +29,19 @@
 </header>
 
   <main class="page">
+    <h1 id="greeting"></h1>
 
-    <h1 id="greeting">Laddar...</h1>
 
-    <!-- Matcher kommer här senare -->
+    <section class="card">
+        <div class="card-header">
+            <h2>Matcher</h2>
+            <button id="filter-predictions-btn" class="btn btn-secondary">
+                Alla matcher
+            </button>
+        </div>
+
+        <ul class="item-list" id="match-list"></ul>
+    </section>
 
   </main>
 
@@ -40,6 +49,7 @@
   <script src="js/shared/nav.js"></script>
   <script src="js/shared/auth-guard.js"></script>
   <script src="js/shared/greeting.js"></script>
+  <script src="js/mina-tips/mina-tips.js"></script>
 
 </body>
 </html>
