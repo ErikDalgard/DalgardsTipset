@@ -121,13 +121,12 @@ export async function onRequestPatch(context) {
 
   const {
     id,
-    tournament_id,
     label  } = await context.request.json();
 
-  if (!id || !tournament_id || !label) {
+  if (!id || !label) {
     return new Response(
       JSON.stringify({
-        error: "id, tournament_id, label krävs"
+        error: "id, label krävs"
       }),
       {
         status: 400,
@@ -140,12 +139,11 @@ export async function onRequestPatch(context) {
     const result = await context.env.DB.prepare(`
         UPDATE prediction_questions
         SET
-            tournament_id = ?,
             label = ?
         WHERE id = ?
 
     `)
-      .bind(tournament_id,label, id).run();
+      .bind(label, id).run();
 
     return new Response(
       JSON.stringify({
