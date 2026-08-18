@@ -658,6 +658,98 @@ section {
 }
 
 
+/* MATCHER */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-date {
+  margin: 20px 0 5px;
+  font-size: 1.1rem;
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.match-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.match-info strong {
+  min-width: 50px;
+}
+
+.match-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.match-score-input {
+  width: 45px;
+  min-width: 45px;
+  max-width: 45px;
+  padding: 6px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.match-result .btn {
+  width: auto;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+
+/* Mobil */
+@media (max-width: 600px) {
+  .match-item {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .match-info {
+    flex-wrap: wrap;
+  }
+
+  .match-result {
+    flex-shrink: 0;
+  }
+
+  .match-score-input {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+
+  .match-result .btn {
+    padding: 6px 10px;
+  }
+}
+
+
+.match-item.editable {
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.match-item.editable:hover {
+  background-color: var(--color-primary-light, #f5f5f5);
+  box-shadow: 0 0 0 2px currentColor;
+  transform: translateY(-1px);
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */

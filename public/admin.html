@@ -188,99 +188,61 @@
       </section>
 
 
-      <!-- Matcher -->
-      <section class="card">
-        <h2>Matcher</h2>
+    <!-- Matcher -->
+    <section class="card">
+      <h2>Matcher</h2>
 
-        <ul id="match-list" class="item-list"></ul>
+      <div id="match-list" class="match-list"></div>
 
-        <button class="btn" id="create-match-btn">
-          Lägg till match
-        </button>
+      <button class="btn" id="create-match-btn">
+        Lägg till match
+      </button>
+      <button class="btn btn-secondary" id="edit-match-btn">Redigera match</button>
 
-        <button class="btn btn-secondary" id="edit-match-btn">
-          Redigera match
-        </button>
+      <!-- SKAPA MATCH -->
+      <div class="card-form" id="create-match-card" hidden>
+        <h3>Lägg till match</h3>
 
-        <!-- REDIGERA MATCH -->
-        <div class="card-form" id="edit-match-card" hidden>
-          <h3>Redigera match</h3>
+        <form id="match-form">
 
           <div class="form-group">
-            <label for="match-search">Sök match</label>
+            <label for="home-team">Hemmalag</label>
+            <select id="home-team"></select>
+          </div>
+
+          <div class="form-group">
+            <label for="away-team">Bortalag</label>
+            <select id="away-team"></select>
+          </div>
+
+          <div class="form-group">
+            <label for="kickoff">Avspark</label>
             <input
-              type="text"
-              id="match-search"
-              placeholder="Sök match"
+              type="datetime-local"
+              id="kickoff"
+              required
             >
           </div>
 
-          <ul id="match-search-list" class="item-list"></ul>
+          <button type="submit" class="btn" id="match-submit-btn">
+            Lägg till match
+          </button>
 
           <button
             type="button"
-            id="cancel-edit-match-search"
+            id="cancel-create-match"
             class="btn btn-secondary"
+            hidden
           >
             Avbryt
           </button>
-        </div>
 
-        <!-- SKAPA / REDIGERA MATCH -->
-        <div class="card-form" id="create-match-card" hidden>
-          <h3 id="match-form-title">Lägg till match</h3>
+          <p id="match-error-message" class="error"></p>
 
-          <form id="match-form">
-
-            <div class="form-group">
-              <label for="home-team">Hemmalag</label>
-              <select id="home-team"></select>
-            </div>
-
-            <div class="form-group">
-              <label for="away-team">Bortalag</label>
-              <select id="away-team"></select>
-            </div>
-
-            <div class="form-group">
-              <label for="kickoff">Avspark</label>
-              <input
-                type="datetime-local"
-                id="kickoff"
-                required
-              >
-            </div>
-
-            <button type="submit" class="btn" id="match-submit-btn">
-              Lägg till match
-            </button>
-
-            <button
-              type="button"
-              id="delete-edit-match-btn"
-              class="btn btn-danger"
-              hidden
-            >
-              Radera match
-            </button>
-
-            <button
-              type="button"
-              id="cancel-create-match"
-              class="btn btn-secondary"
-              hidden
-            >
-              Avbryt
-            </button>
-
-            <p id="match-error-message" class="error"></p>
-
-          </form>
-        </div>
-      </section>
-
+        </form>
+      </div>
+    </section>
     </div>
-
   </main>
 
   <script src="js/shared/toast.js"></script>
