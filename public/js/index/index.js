@@ -1,53 +1,58 @@
 let todaysMatches = [];
+let allUsers = [];
 let currentUserId = null;
+let currentUsername = null;
 
 async function loadTodaysMatches() {
-    const response = await fetch("/api/user/match_predictions?today=true");
+    try {
+        // Hämta både alla användare och dagens matcher parallellt
+        const [usersRes, matchesRes] = await Promise.all([
+            fetch("/api/user/users"),
+            fetch("/api/user/match_predictions?today=true")
+        ]);
 
-    if (!response.ok) {
-        throw new Error("Kunde inte hämta dagens matcher!");
+        if (!usersRes.ok || !matchesRes.ok) {
+            throw new Error("Kunde inte hämta data!");
+        }
+
+        allUsers = await usersRes.json();
+        const matchData = await matchesRes.json();
+
+        todaysMatches = matchData.matches;
+        currentUserId = matchData.current_user_id;
+        currentUsername = matchData.current_username;
+
+        renderTodaysMatches();
+    } catch (error) {
+        console.error(error);
     }
-
-    const data = await response.json();
-
-    todaysMatches = data.matches;
-    currentUsername = data.current_username;
-    currentUserId = data.current_user_id
-
-    renderTodaysMatches();
 }
 
 function renderTodaysMatches() {
-    const container = document.getElementById("todays-matches");
-    container.innerHTML = "";
+    const mainContainer = document.getElementById("todays-matches");
+    mainContainer.innerHTML = "";
+    mainContainer.className = "card todays-matches-card"; // Kortet i botten
 
     if (todaysMatches.length === 0) {
         const message = document.createElement("p");
         message.className = "no-matches-message";
         message.textContent = "Det finns inga matcher idag.";
-        container.appendChild(message);
+        mainContainer.appendChild(message);
         return;
     }
 
-    // HÄMTA ALLA UNIKA ANVÄNDARE
-    const userMap = new Map();
-    todaysMatches.forEach(match => {
-        if (match.user_id !== null) {
-            userMap.set(match.user_id, match.username);
-        }
-    });
+    // Skapa en scrollbar wrapper inuti kortet
+    const scrollWrapper = document.createElement("div");
+    scrollWrapper.className = "table-scroll-wrapper";
 
-    const userIds = [...userMap.keys()];
-    const otherUserIds = userIds.filter(userId => userId !== currentUserId);
+    const gridContainer = document.createElement("div");
+    gridContainer.className = "matches-grid";
 
-    // Beräkna totala antal kolumner: 1 för matchinfo + 1 för "Du" + antal övriga användare
-    const totalColumns = 1 + 1 + otherUserIds.length;
-    
-    // Sätt CSS Grid-kolumner dynamiskt på containern (eller använd en wrapper)
-    container.style.display = "grid";
-    container.style.gridTemplateColumns = `2fr repeat(${1 + otherUserIds.length}, 1fr)`;
-    container.style.gap = "12px 16px";
-    container.style.alignItems = "center";
+    // Hämta användare
+    const otherUsers = allUsers.filter(user => user.id !== currentUserId);
+
+    // Sätt upp Grid-kolumner dynamiskt på grid-containern
+    gridContainer.style.gridTemplateColumns = `2fr repeat(${1 + otherUsers.length}, minmax(70px, 1fr))`;
 
     // =================================================
     // HEADER
@@ -55,18 +60,18 @@ function renderTodaysMatches() {
     const matchHeader = document.createElement("div");
     matchHeader.className = "today-match-info header-title";
     matchHeader.textContent = "Match";
-    container.appendChild(matchHeader);
+    gridContainer.appendChild(matchHeader);
 
     const youHeader = document.createElement("div");
     youHeader.className = "today-user-column header-name";
     youHeader.textContent = "Du";
-    container.appendChild(youHeader);
+    gridContainer.appendChild(youHeader);
 
-    otherUserIds.forEach(userId => {
+    otherUsers.forEach(user => {
         const userHeader = document.createElement("div");
         userHeader.className = "today-user-column header-name";
-        userHeader.textContent = userMap.get(userId);
-        container.appendChild(userHeader);
+        userHeader.textContent = user.username;
+        gridContainer.appendChild(userHeader);
     });
 
     // =================================================
@@ -78,7 +83,7 @@ function renderTodaysMatches() {
         const matchPredictions = todaysMatches.filter(match => match.match_id === matchId);
         const match = matchPredictions[0];
 
-        // Match Info (Tid & Lag)
+        // Match Info
         const matchInfo = document.createElement("div");
         matchInfo.className = "today-match-info";
 
@@ -93,20 +98,20 @@ function renderTodaysMatches() {
 
         matchInfo.appendChild(time);
         matchInfo.appendChild(teams);
-        container.appendChild(matchInfo);
+        gridContainer.appendChild(matchInfo);
 
         // DITT TIPS
         const myPrediction = matchPredictions.find(prediction => prediction.user_id === currentUserId);
         const myCell = document.createElement("div");
         myCell.className = "today-prediction my-prediction";
         myCell.textContent = myPrediction ? `${myPrediction.home_score} – ${myPrediction.away_score}` : "–";
-        container.appendChild(myCell);
+        gridContainer.appendChild(myCell);
 
         // DEADLINE-KONTROLL
         const isLocked = new Date() < new Date(match.deadline_at);
 
         // ÖVRIGA ANVÄNDARE
-        otherUserIds.forEach(userId => {
+        otherUsers.forEach(user => {
             const cell = document.createElement("div");
             cell.className = "today-prediction";
 
@@ -120,13 +125,17 @@ function renderTodaysMatches() {
                     </svg>
                 `;
             } else {
-                const prediction = matchPredictions.find(prediction => prediction.user_id === userId);
+                const prediction = matchPredictions.find(prediction => prediction.user_id === user.id);
                 cell.textContent = prediction ? `${prediction.home_score} – ${prediction.away_score}` : "–";
             }
 
-            container.appendChild(cell);
+            gridContainer.appendChild(cell);
         });
     });
+
+    // Sätt ihop elementen
+    scrollWrapper.appendChild(gridContainer);
+    mainContainer.appendChild(scrollWrapper);
 }
 
 loadTodaysMatches();

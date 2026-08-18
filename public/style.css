@@ -824,6 +824,7 @@ section {
 
   .site-header-inner {
     min-height: 56px;
+    position: relative; /* Viktigt för att menyn ska positioneras efter headern */
   }
 
   .admin-grid {
@@ -846,27 +847,33 @@ section {
   .site-nav {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch; /* Fyller ut bredden för länkarna */
     position: absolute;
-    top: 15%;
-    left: auto;
-    width: 30%;
-    right: 0;
+    top: 100%; /* Placeras direkt under headern */
+    right: 1rem;
+    width: min(240px, 80vw); /* Snygg fast bredd som inte smälter ihop */
     background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
-    padding: 1rem;
-    box-shadow: var(--shadow-sm);
-    border-radius: 8%;
+    border: 1px solid var(--color-border);
+    padding: 0.75rem;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-md); /* Använder ditt designsystems radie */
+    z-index: 100; /* Ser till att menyn ligger över annat innehåll */
 
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
     pointer-events: none;
     visibility: hidden;
 
     transition:
-      opacity 0.35s ease,
-      transform 0.35s ease,
-      visibility 0.35s ease;
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  /* Gör länkarna lite enklare att klicka på i mobilen */
+  .site-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
   }
 
   .site-nav.open {
@@ -876,7 +883,6 @@ section {
     visibility: visible;
   }
 }
-
 
 [hidden] {
   display: none !important;
@@ -1139,10 +1145,25 @@ section {
    DAGENS MATCHER - DESIGN SYSTEM ANPASSNING
    ========================================================= */
 
+/* Själva kortet behåller snygga skuggor och rundade hörn intakta */
 .todays-matches-card {
-    /* Använder ditt existerande .card-koncept */
+    padding: 1.5rem;
+    overflow: hidden; /* Förhindrar att något läcker utanför de rundade hörnen */
+}
+
+/* Wrappern som hanterar scrollen inuti kortet */
+.table-scroll-wrapper {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Själva griden */
+.matches-grid {
+    display: grid;
+    gap: 12px 16px;
+    align-items: center;
+    min-width: 550px; /* Ser till att kolumnerna inte pressas ihop för hårt, vilket tvingar fram scrollen på små skärmar */
 }
 
 /* Headern */
@@ -1197,14 +1218,12 @@ section {
     border: 1px solid transparent;
 }
 
-/* Framhäv din egen kolumn med designsystemets primärfärg (ljusgrön variant) */
 .my-prediction {
     background: var(--color-primary-light);
     color: var(--color-primary-dark);
     border-color: var(--color-border);
 }
 
-/* Låst ikon */
 .prediction-lock {
     color: var(--color-text-muted);
 }
