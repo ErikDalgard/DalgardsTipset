@@ -25,8 +25,7 @@ export async function onRequestGet(context){
         SELECT 
             id,
             tournament_id,
-            label,
-            type
+            label
         FROM 
             prediction_questions
         WHERE 
@@ -64,14 +63,13 @@ export async function onRequestPost(context) {
 
   const {
     tournament_id,
-    label,
-    type,
+    label
   } = await context.request.json();
 
-  if (!tournament_id || !label || !type) {
+  if (!tournament_id || !label) {
     return new Response(
       JSON.stringify({
-        error: "tournament_id, label, type krävs"
+        error: "tournament_id, label  krävs"
       }),
       {
         status: 400,
@@ -84,12 +82,11 @@ export async function onRequestPost(context) {
     const result = await context.env.DB.prepare(`
       INSERT INTO prediction_questions (
         tournament_id,
-        label,
-        type
+        label
       )
-      VALUES (?, ?, ?)
+      VALUES (?, ?)
     `)
-      .bind(tournament_id,label,type).run();
+      .bind(tournament_id,label).run();
 
     return new Response(
       JSON.stringify({
@@ -125,14 +122,12 @@ export async function onRequestPatch(context) {
   const {
     id,
     tournament_id,
-    label,
-    type,
-  } = await context.request.json();
+    label  } = await context.request.json();
 
-  if (!id || !tournament_id || !label || !type) {
+  if (!id || !tournament_id || !label) {
     return new Response(
       JSON.stringify({
-        error: "id, tournament_id, label, type krävs"
+        error: "id, tournament_id, label krävs"
       }),
       {
         status: 400,
@@ -146,12 +141,11 @@ export async function onRequestPatch(context) {
         UPDATE prediction_questions
         SET
             tournament_id = ?,
-            label = ?,
-            type = ?
+            label = ?
         WHERE id = ?
 
     `)
-      .bind(tournament_id,label,type, id).run();
+      .bind(tournament_id,label, id).run();
 
     return new Response(
       JSON.stringify({

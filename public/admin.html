@@ -108,7 +108,7 @@
             </div>
 
             <button type="submit" class="btn" id="tournament-submit-btn">
-              Skapa
+              Spara
             </button>
             
             <button type="button" id="delete-tournament-btn" class="btn btn-danger" hidden>
@@ -150,7 +150,6 @@
         </div>
 
         <div class="card-form" id = "create-team-card" hidden>
-          <h3>Lägg till lag</h3>
 
           <form id="team-form">
 
@@ -176,7 +175,7 @@
             </div>
 
             <button type="submit" class="btn">
-              Skapa lag
+              Spara
             </button>
             <button type="button" id="delete-edit-team-btn" class="btn btn-danger" hidden>Radera lag</button>
             <button type="button" id="cancel-create-team" class="btn btn-secondary" hidden>Avbryt</button>
@@ -201,7 +200,6 @@
 
       <!-- SKAPA MATCH -->
       <div class="card-form" id="create-match-card" hidden>
-        <h3>Lägg till match</h3>
 
         <form id="match-form">
 
@@ -243,6 +241,38 @@
       </div>
     </section>
     </div>
+  
+          <!-- Utslagsfrågor -->
+    <section class="card">
+      <h2>Utslagsfrågor</h2>
+
+      <ul id="question-list" class="item-list"></ul>
+
+      <button class="btn" id ="btn-edit-question"> Skapa fråga</button>
+      <div class="card-form" id = "question-list-card" hidden>
+        <form id="question-form">
+        <input type="hidden" id="question-id">
+
+          <div class="form-group">
+            <label for="question">Fråga</label>
+            <input type="text" id="question" required>
+          </div>
+
+          <button type="submit" class="btn", id = "question-submit-btn">
+            Spara
+          </button>
+
+          <button type="button" id="delete-edit-question-btn" class="btn btn-danger" hidden>Radera fråga</button>
+          <button type="button" id="cancel-edit-question-btn" class="btn btn-secondary" hidden>Avbryt</button>
+          <button type="button" id="cancel-card-question-layout" class="btn btn-secondary" hidden>Avbryt</button>
+
+
+          <p id="question-error-message" class="error"></p>
+
+        </form>
+      </div>
+    </section>
+
   </main>
 
   <script src="js/shared/toast.js"></script>

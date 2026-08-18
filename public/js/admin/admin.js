@@ -2,6 +2,7 @@ import { setupUserManagement } from "./users.js";
 import { setupTournamentManagement } from "./tournaments.js";
 import { setupTeamManagement } from "./teams.js";
 import { setupMatchManagement } from "./matches.js";
+import { setupQuestionManagement } from "./questions.js"
 
 (async () => {
   const user = await requireAuth();
@@ -19,3 +20,4 @@ await setupUserManagement();
 await setupTournamentManagement();
 await setupTeamManagement();
 await setupMatchManagement();
+await setupQuestionManagement();
