@@ -70,8 +70,6 @@ export async function setupMatchManagement() {
 
       document.getElementById("match-form").reset();
 
-      document.querySelector("#create-match-card h3").textContent =
-        "Lägg till match";
 
       document.querySelector("#match-form button[type='submit']").textContent =
         "Skapa match";
@@ -311,8 +309,7 @@ export async function setupMatchManagement() {
       formatDateTimeLocal(match.kickoff_at);
 
     // Ändra rubrik och knapp
-    document.querySelector("#create-match-card h3").textContent =
-      "Redigera match";
+
 
     document.querySelector("#match-form button[type='submit']").textContent =
       "Spara ändringar";

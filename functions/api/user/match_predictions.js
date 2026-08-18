@@ -2,24 +2,90 @@ import { getCurrentUser } from "../../utils/auth.js";
 
 // GET - få spelares predictions
 
-export async function onRequestGet(context){
+export async function onRequestGet(context) {
     const user = await getCurrentUser(context);
 
-    const {results} = await context.env.DB.prepare(`
-        SELECT 
-            match_predictions.match_id,
-            match_predictions.home_score,
-            match_predictions.away_score
-        
-        FROM match_predictions
-        WHERE match_predictions.user_id = ?
-        `).bind(user.id).all();
+    const url = new URL(context.request.url);
+    const today = url.searchParams.get("today") === "true";
+
+    let results;
+
+    if (today) {
+
+        const response = await context.env.DB.prepare(`
+            SELECT
+                users.username,
+                matches.id AS match_id,
+
+                home_team.name AS home_team,
+                away_team.name AS away_team,
+
+                matches.kickoff_at,
+                matches.deadline_at,
+
+                match_predictions.user_id,
+                match_predictions.home_score,
+                match_predictions.away_score
+
+            FROM matches
+
+            JOIN teams AS home_team
+                ON home_team.id = matches.home_team_id
+
+            JOIN teams AS away_team
+                ON away_team.id = matches.away_team_id
+            
+            JOIN users
+                on match_predictions.user_id = users.id
+
+            LEFT JOIN match_predictions
+                ON match_predictions.match_id = matches.id
+
+            WHERE DATE(matches.kickoff_at) = DATE('now', 'localtime')
+
+            ORDER BY matches.kickoff_at
+        `).all();
+
+        return new Response(
+            JSON.stringify({
+                current_username: user.username, 
+                current_user_id: user.id,
+                matches: response.results
+            }),
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+    } else {
+
+        const response = await context.env.DB.prepare(`
+            SELECT 
+                match_predictions.match_id,
+                match_predictions.home_score,
+                match_predictions.away_score
+
+            FROM match_predictions
+
+            WHERE match_predictions.user_id = ?
+        `)
+        .bind(user.id)
+        .all();
+
+        results = response.results;
+
         return new Response(
             JSON.stringify(results),
-            {headers: {"Content-Type": "applications/json"}}
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
         );
+    }
 }
-
 //PATCH - uppdatera/sätt ett tips
 
 export async function onRequestPatch(context) {

@@ -22,24 +22,74 @@
     <nav class="site-nav" id="site-nav">
       <a href="/" class="nav-link">Hem</a>
       <a href="mina-tips.html" class="nav-link">Mina tips</a>
+      <a href="#" class="nav-link">Resultat</a>
       <a href="admin.html" class="nav-link">Admin</a>
       <button id="logout-btn" class="btn btn-danger">Logga ut</button>
     </nav>
   </div>
 </header>
 
-  <main class="page">
+<main class="page">
+  <h1 id="greeting"></h1>
 
-    <h1 id="greeting">Laddar...</h1>
+  <section class="card">
 
-    <!-- Matcher kommer här senare -->
+    <div class="card-header">
+      <div>
+        <h2>Dagens matcher</h2>
+        <p class="section-description">
+          Se ditt tips och hur de andra har tippat.
+        </p>
+      </div>
+    </div>
 
-  </main>
+    <div id="todays-matches">
+      <!-- JS fyller denna -->
+    </div>
 
+  </section>
+
+
+  <section class="home-overview">
+    <div class="card home-score-card">
+      <h2>Dina poäng</h2>
+
+      <div class="score-main">
+        <span id="user-points">0</span>
+        <span class="score-label">poäng</span>
+      </div>
+
+      <div class="score-position">
+        Plats <strong id="user-position">–</strong>
+      </div>
+    </div>
+
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2>Snart dags att tippa</h2>
+          <p class="section-description">
+            Dina närmaste matcher och utslagsfrågor.
+          </p>
+        </div>
+      </div>
+
+      <ul id="next-tips-list" class="list">
+        <!-- JS fyller denna -->
+      </ul>
+
+    </section>
+
+  </section>
+
+
+</main>
 
   <script src="js/shared/nav.js"></script>
   <script src="js/shared/auth-guard.js"></script>
   <script src="js/shared/greeting.js"></script>
+  <script src="js/index/index.js"></script>
 
 </body>
 </html>

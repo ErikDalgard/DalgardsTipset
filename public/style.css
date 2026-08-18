@@ -932,3 +932,286 @@ section {
   border-color: var(--color-danger);
 }
 
+
+/* =========================================================
+   HEM
+   ========================================================= */
+
+.home-overview {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.home-score-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.score-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+
+  margin: 0.5rem 0 1rem;
+}
+
+.score-main span:first-child {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.score-label {
+  color: var(--color-text-muted);
+}
+
+.score-position {
+  color: var(--color-text-muted);
+}
+
+.score-position strong {
+  color: var(--color-text);
+}
+
+
+.home-upcoming-card {
+  min-width: 0;
+}
+
+.section-description {
+  margin: -0.5rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+
+/* Kommande tips */
+
+#upcoming-tips-list li,
+#next-tips-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upcoming-time {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.upcoming-match {
+  min-width: 0;
+}
+
+.upcoming-prediction {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* Dagens matcher */
+
+.today-match {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.today-match:last-child {
+  border-bottom: none;
+}
+
+.today-match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.today-match-time {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.today-match-teams {
+  font-weight: 700;
+}
+
+
+/* Ditt tips */
+
+.your-prediction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  padding: 0.75rem 1rem;
+
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+
+  margin-bottom: 1rem;
+}
+
+.your-prediction-label {
+  color: var(--color-text-muted);
+}
+
+.your-prediction-value {
+  font-weight: 700;
+}
+
+
+/* Andras tips */
+
+.prediction-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.prediction-distribution-row {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.prediction-score {
+  font-weight: 600;
+}
+
+.prediction-bar {
+  height: 10px;
+  background: var(--color-primary-light);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.prediction-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+}
+
+.prediction-count {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .home-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .today-match-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .prediction-distribution-row {
+    grid-template-columns: 45px minmax(0, 1fr) auto;
+    gap: 0.5rem;
+  }
+}
+
+
+/* =========================================================
+   DAGENS MATCHER
+   ========================================================= */
+
+/* =========================================================
+   DAGENS MATCHER - DESIGN SYSTEM ANPASSNING
+   ========================================================= */
+
+.todays-matches-card {
+    /* Använder ditt existerande .card-koncept */
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Headern */
+.header-title, 
+.header-name {
+    font-family: var(--font-family-display);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.header-name, 
+.today-prediction {
+    text-align: center;
+}
+
+/* Matchinformation */
+.today-match-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0;
+}
+
+.today-match-time {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.today-match-teams {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Tips-celler */
+.today-prediction {
+    background: var(--color-bg);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    border: 1px solid transparent;
+}
+
+/* Framhäv din egen kolumn med designsystemets primärfärg (ljusgrön variant) */
+.my-prediction {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-border);
+}
+
+/* Låst ikon */
+.prediction-lock {
+    color: var(--color-text-muted);
+}
+
+.no-matches-message {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 20px;
+    margin: 0;
+}
