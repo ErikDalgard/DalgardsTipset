@@ -647,6 +647,20 @@ section {
   margin: 0;
 }
 
+  .question-input{
+    width: 20%;
+  }
+
+  .question-input:disabled {
+  cursor: not-allowed;
+}
+
+.question-input:disabled {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
 /* =========================================================
    ADMIN
    ========================================================= */
@@ -749,6 +763,49 @@ section {
   border-radius: 1rem;
   padding: 1rem;
   transform: translateY(-1px);
+}
+
+.list .question-item {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border, #ddd);
+}
+
+
+#tournament-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#tournament-list .tournament-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 80px 120px auto;
+  align-items: center;
+  column-gap: 1rem;
+
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tournament-name {
+  min-width: 0;
+}
+
+.tournament-status {
+  text-align: center;
+}
+
+.tournament-date {
+  white-space: nowrap;
+}
+
+#tournament-list .tournament-item .btn {
+  width: auto;
+  white-space: nowrap;
 }
 
 /* =========================================================
@@ -874,3 +931,4 @@ section {
   color: white;
   border-color: var(--color-danger);
 }
+

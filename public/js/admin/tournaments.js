@@ -30,6 +30,7 @@ export async function setupTournamentManagement(){
 
     tournaments.forEach(t => {
         const li = document.createElement("li");
+        li.className = "tournament-item";
 
         const name = document.createElement("span");
         name.textContent = t.name;
