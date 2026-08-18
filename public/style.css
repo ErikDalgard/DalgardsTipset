@@ -746,7 +746,8 @@ section {
 
 .match-item.editable:hover {
   background-color: var(--color-primary-light, #f5f5f5);
-  box-shadow: 0 0 0 2px currentColor;
+  border-radius: 1rem;
+  padding: 1rem;
   transform: translateY(-1px);
 }
 

@@ -1,3 +1,4 @@
+//håller koll på om vi editerar en match eller ej
 let editingMatchId = null;
 
 // --- MATCHER ---
@@ -5,16 +6,23 @@ let editingMatchId = null;
 export async function setupMatchManagement() {
   let matches = [];
 
+  //Ladda matcher
   await loadMatches();
   await populateTeamSelects();
 
+  //Om vi ändrar turnering så ska vi uppdatera matcherna
   document.getElementById("tournament-select").addEventListener("change", async () => {
     await loadMatches();
     await populateTeamSelects();
   });
 
+  //Klickas skapa match körs skapa match funktionern
   document.getElementById("create-match-btn").addEventListener("click", showCreateMatch);
+
+  //Klickas avbryt skapa match körs avbryt match funktionen
   document.getElementById("cancel-create-match").addEventListener("click", cancelCreateMatch);
+
+  //Klickas redigera en match görs alla matcher klickbara om man klickar körs selektMatchto Edit funktion.
   document.getElementById("edit-match-btn").addEventListener("click", ()=>{
     document.querySelectorAll(".match-item").forEach(matchElement=>{
       matchElement.classList.add("editable");
@@ -23,6 +31,7 @@ export async function setupMatchManagement() {
     showToast("Klicka på matchen du vill redigera");
   })
 
+  //Om man klickar "Skapar match" så skapas en ny / uppdateras en match baserat på editingMatchID
   document.getElementById("match-form").addEventListener("submit", async event => {
     event.preventDefault();
 
@@ -99,6 +108,8 @@ export async function setupMatchManagement() {
     showToast("Matchen har skapats!");
   });
 
+
+  //Vilka lag finns det? skickar en snabb api request med rätt turneringsID
   async function populateTeamSelects() {
     const tournamentId = document.getElementById("tournament-select").value;
     if (!tournamentId) return;
@@ -126,6 +137,7 @@ export async function setupMatchManagement() {
     });
   }
 
+  //ladda matcher med rätt turnerings id.
   async function loadMatches() {
     const tournamentId = document.getElementById("tournament-select").value;
     if (!tournamentId) return;
@@ -183,6 +195,7 @@ export async function setupMatchManagement() {
     });
   }
 
+  //Om man fyller i resultatet till höger om matchen skickas en api patch till matches_results för att uppdatera med en PATCH. 
   async function saveResult(matchId) {
     const match = matches.find(m => Number(m.id) === matchId);
     if (!match) return;
@@ -230,6 +243,7 @@ export async function setupMatchManagement() {
     showToast("Resultatet har sparats!");
   }
 
+  //uppdayera vad som syns när man skapar en ny match
   function showCreateMatch() {
     editingMatchId = null;
 
@@ -252,6 +266,9 @@ export async function setupMatchManagement() {
 
     document.querySelector("#match-form button[type='submit']").textContent =
       "Skapa match";
+    
+    document.getElementById("edit-match-btn").hidden = false;
+    
 
     hideMatchForm();
   }
