@@ -38,12 +38,6 @@
 <main class="page">
 
   <h1 id="greeting"></h1>
-
-
-  <!-- =========================
-       TOPPLISTA
-       ========================= -->
-
   <section class="card">
     <div class="card-header">
       <div>
@@ -53,37 +47,27 @@
         </p>
       </div>
     </div>
-
-    <!-- JS fyller denna med spelarna -->
     <div id="standings-list">
-      <!--
-        Exempel:
-
-        🥇 Erik       47 poäng
-        🥈 Kalle      42 poäng
-        🥉 Lisa       39 poäng
-        4. Anna       31 poäng
-      -->
     </div>
 
   </section>
 
 
-  <!-- =========================
-       POÄNG ÖVER TID
-       ========================= -->
 
-  <section class="card">
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <h2>Poäng över tid</h2>
+                <p class="section-description">
+                    Se hur spelarnas poäng utvecklas under turneringen.
+                </p>
+            </div>
+        </div>
 
-    <div class="card-header">
-      <div>
-        <h2>Poäng över tid</h2>
-
-        <p class="section-description">
-          Se hur spelarnas poäng utvecklas under turneringen.
-        </p>
-      </div>
-    </div>
+        <div class="chart-container">
+            <canvas id="points-chart"></canvas>
+        </div>
+    </section>
 
     <!--
       Här kommer grafen senare.
@@ -163,8 +147,8 @@
 <script src="js/shared/nav.js"></script>
 <script src="js/shared/auth-guard.js"></script>
 <script src="js/shared/greeting.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/stallning/stallning.js"></script>
-
 
 </body>
 </html>
