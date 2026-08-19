@@ -1,359 +1,225 @@
 import { setupToggleCard, hideCard } from "./ui.js";
-// import {populateTeamSelects, loadMatches} from "./matches.js";
-// import {loadTeams} from "./teams.js";
 
-// --- TURNERINGAR ---
 let editingTournamentId = null;
+const RULE_TYPES = ["exact_score", "correct_diff", "correct_winner"];
 
-
-export async function setupTournamentManagement(){
-    setupToggleCard(
-    "btn-show-edit-to-list",
-    "to-list-card",
-    "cancel-card-tu-layout"
-    );
+export async function setupTournamentManagement() {
+    setupToggleCard("btn-show-edit-to-list", "to-list-card", "cancel-card-tu-layout");
 
     // Funktion för att rendera alla turneringar
     async function loadTournaments() {
-    const response = await fetch(
-        "/api/admin/tournaments",
-        {
-        credentials: "same-origin"
-        }
-    );
+        const response = await fetch("/api/admin/tournaments", { credentials: "same-origin" });
+        const tournaments = await response.json();
 
-    const tournaments = await response.json();
+        const list = document.getElementById("tournament-list");
+        list.innerHTML = "";
+        list.className = "list";
 
-    const list = document.getElementById("tournament-list");
-    list.innerHTML = "";
-    list.className = "list";
+        tournaments.forEach(t => {
+            const li = document.createElement("li");
+            li.className = "tournament-item";
 
-    tournaments.forEach(t => {
-        const li = document.createElement("li");
-        li.className = "tournament-item";
+            const name = document.createElement("span");
+            name.textContent = t.name;
 
-        const name = document.createElement("span");
-        name.textContent = t.name;
+            const active_text = document.createElement("span");
+            const active = t.active;
+            active_text.textContent = active === 0 ? "Passiv" : "Aktiv";
 
-        const active_text = document.createElement("span");
-        const active = t.active;
-        if (active === 0){
-            active_text.textContent = "Passiv";
-        }
-        else{
-            active_text.textContent = "Aktiv";
-        }
+            const start_date = document.createElement("span");
+            start_date.textContent = t.start_date || "Inget datum";
 
-        const start_date = document.createElement("span");
-        start_date.textContent =
-        t.start_date || "Inget datum";
+            const button = document.createElement("button");
+            button.textContent = "Redigera";
+            button.className = "btn btn-secondary";
 
-        const button = document.createElement("button");
-        button.textContent = "Redigera";
-        button.className = "btn btn-secondary";
+            button.addEventListener("click", () => {
+                startEditTournament(t);
+                document.getElementById("to-list-card").hidden = false;
+                document.getElementById("btn-show-edit-to-list").hidden = true;
+            });
 
-        button.addEventListener("click", () => {
-        startEditTournament(t);
+            li.appendChild(name);
+            li.appendChild(active_text);
+            li.appendChild(start_date);
+            li.appendChild(button);
 
-        const card = document.getElementById("to-list-card");
-        card.hidden = false;
-
-        const button_show =
-            document.getElementById("btn-show-edit-to-list");
-
-        button_show.hidden = true;
+            list.appendChild(li);
         });
 
-        li.appendChild(name);
-        li.appendChild(active_text);
-        li.appendChild(start_date);
-        li.appendChild(button);
-
-        list.appendChild(li);
-    });
-
-    return tournaments;
+        return tournaments;
     }
 
+    async function populateTournamentSelect(tournaments) {
+        const select = document.getElementById("tournament-select");
+        const previousValue = select.value;
+        select.innerHTML = "";
 
-async function populateTournamentSelect(tournaments) {
-    const select =
-        document.getElementById("tournament-select");
+        tournaments.forEach(t => {
+            const option = document.createElement("option");
+            option.value = t.id;
+            option.textContent = t.name;
+            select.appendChild(option);
+        });
 
-    const previousValue = select.value;
-
-    select.innerHTML = "";
-
-    tournaments.forEach(t => {
-        const option = document.createElement("option");
-
-        option.value = t.id;
-        option.textContent = t.name;
-
-        select.appendChild(option);
-    });
-
-    if (previousValue) {
-        select.value = previousValue;
+        if (previousValue) {
+            select.value = previousValue;
+        }
     }
 
-}
+    // Hämtar poängreglerna för en turnering och fyller i fälten.
+    async function loadScoringRules(tournamentId) {
+        const response = await fetch(`/api/admin/scoring_rules?tournament_id=${tournamentId}`, { credentials: "same-origin" });
 
+        const rules = await response.json();
+
+        RULE_TYPES.forEach(type => {
+            const rule = rules.find(r => r.rule_type === type);
+            document.getElementById(`rule-${type}`).value = rule ? rule.points : "";
+        });
+    }
+
+    // Sparar alla ifyllda poängregler för en turnering
+    async function saveScoringRules(tournamentId) {
+        for (const type of RULE_TYPES) {
+            const value = document.getElementById(`rule-${type}`).value;
+            if (value === "") continue;
+
+            await fetch("/api/admin/scoring_rules", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ tournament_id: tournamentId, rule_type: type, points: Number(value) })
+            });
+        }
+    }
 
     // Funktion för att editera en turnering
-    function startEditTournament(tournament) {
-    editingTournamentId = tournament.id;
+    async function startEditTournament(tournament) {
+        editingTournamentId = tournament.id;
 
-    document.getElementById("name").value =
-        tournament.name;
+        document.getElementById("name").value = tournament.name;
+        document.getElementById("start_date").value = tournament.start_date || "";
+        document.getElementById("active").checked = tournament.active === 1;
 
-    document.getElementById("start_date").value =
-        tournament.start_date || "";
+        await loadScoringRules(tournament.id);
 
-    document.getElementById("active").checked = tournament.active === 1;
-
-    document.getElementById("tournament-form-title").textContent =
-        "Redigera turnering";
-
-    document.getElementById("tournament-submit-btn").textContent =
-        "Spara ändringar";
-
-    document.getElementById("delete-tournament-btn").hidden =
-        false;
-
-    document.getElementById("cancel-tournament-edit-btn").hidden =
-        false;
-
-    document.getElementById("tournament-form").scrollIntoView({
-        behavior: "smooth"
-    });
+        document.getElementById("tournament-form-title").textContent = "Redigera turnering";
+        document.getElementById("tournament-submit-btn").textContent = "Spara ändringar";
+        document.getElementById("delete-tournament-btn").hidden = false;
+        document.getElementById("cancel-tournament-edit-btn").hidden = false;
+        document.getElementById("tournament-form").scrollIntoView({ behavior: "smooth" });
     }
-
 
     // Funktion för att gå ut från editeringsmode
     function cancelEditTournament() {
-    editingTournamentId = null;
+        editingTournamentId = null;
 
-    document.getElementById("tournament-form").reset();
+        document.getElementById("tournament-form").reset();
+        document.getElementById("tournament-form-title").textContent = "Skapa ny turnering";
+        document.getElementById("tournament-submit-btn").textContent = "Skapa";
+        document.getElementById("delete-tournament-btn").hidden = true;
+        document.getElementById("cancel-tournament-edit-btn").hidden = true;
+        document.getElementById("error-message").textContent = "";
 
-    document.getElementById("tournament-form-title").textContent =
-        "Skapa ny turnering";
-
-    document.getElementById("tournament-submit-btn").textContent =
-        "Skapa";
-
-    document.getElementById("delete-tournament-btn").hidden =
-        true;
-
-    document.getElementById("cancel-tournament-edit-btn").hidden =
-        true;
-
-    document.getElementById("error-message").textContent = "";
-
-    hideCard(
-        "btn-show-edit-to-list",
-        "to-list-card",
-        "cancel-card-tu-layout"
-    );
+        hideCard("btn-show-edit-to-list", "to-list-card", "cancel-card-tu-layout");
     }
 
+    document.getElementById("cancel-tournament-edit-btn").addEventListener("click", cancelEditTournament);
 
-    document
-    .getElementById("cancel-tournament-edit-btn")
-    .addEventListener(
-        "click",
-        cancelEditTournament
-    );
-
-
-    // Klickar man spara så skickas API-request för
-    // att antingen skapa eller uppdatera en turnering
-    document
-    .getElementById("tournament-form")
-    .addEventListener(
-        "submit",
-        async (event) => {
-
+    // Klickar man spara så skickas API-request
+    document.getElementById("tournament-form").addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const errorMessage =
-            document.getElementById("error-message");
-
+        const errorMessage = document.getElementById("error-message");
         errorMessage.textContent = "";
 
-        const name =
-            document.getElementById("name").value.trim();
-
-        const start_date =
-            document.getElementById("start_date").value;
-        
+        const name = document.getElementById("name").value.trim();
+        const start_date = document.getElementById("start_date").value;
         const active = document.getElementById("active").checked ? 1 : 0;
-
 
         // REDIGERA
         if (editingTournamentId !== null) {
-
-            const response = await fetch(
-            "/api/admin/tournaments",
-            {
+            const response = await fetch("/api/admin/tournaments", {
                 method: "PATCH",
-                headers: {
-                "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 credentials: "same-origin",
-                body: JSON.stringify({
-                id: editingTournamentId,
-                name,
-                start_date,
-                active
-                })
-            }
-            );
+                body: JSON.stringify({ id: editingTournamentId, name, start_date, active })
+            });
 
             if (!response.ok) {
-            const data = await response.json();
-
-            errorMessage.textContent =
-                data.error ||
-                "Kunde inte uppdatera turneringen";
-            
-            await loadTournaments();
-
-            return;
+                const data = await response.json();
+                errorMessage.textContent = data.error || "Kunde inte uppdatera turneringen";
+                await loadTournaments();
+                return;
             }
 
+            await saveScoringRules(editingTournamentId);
             cancelEditTournament();
 
-            const tournaments =
-            await loadTournaments();
-
-            await populateTournamentSelect(
-            tournaments
-            );
-
-            showToast(
-            "Turneringen har uppdaterats"
-            );
-
+            const tournaments = await loadTournaments();
+            await populateTournamentSelect(tournaments);
+            showToast("Turneringen har uppdaterats");
             return;
         }
-
 
         // SKAPA
         if (!name) {
-            errorMessage.textContent =
-            "Namn krävs";
-
+            errorMessage.textContent = "Namn krävs";
             return;
         }
 
-        const response = await fetch(
-            "/api/admin/tournaments",
-            {
+        const response = await fetch("/api/admin/tournaments", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "same-origin",
-            body: JSON.stringify({
-                name,
-                start_date,
-                active,
-            })
-            }
-        );
+            body: JSON.stringify({ name, start_date, active })
+        });
 
         if (!response.ok) {
             const data = await response.json();
-
-            errorMessage.textContent =
-            data.error ||
-            "Kunde inte skapa turneringen";
-
+            errorMessage.textContent = data.error || "Kunde inte skapa turneringen";
             return;
         }
 
-        document
-            .getElementById("tournament-form")
-            .reset();
+        const created = await response.json();
+        await saveScoringRules(created.id);
 
-        const tournaments =
-            await loadTournaments();
+        document.getElementById("tournament-form").reset();
 
-        await populateTournamentSelect(
-            tournaments
-        );
-
-        showToast(
-            "Turneringen har skapats!"
-        );
-        }
-    );
-
+        const tournaments = await loadTournaments();
+        await populateTournamentSelect(tournaments);
+        showToast("Turneringen har skapats!");
+    });
 
     // RADERA TURNERING
-    document
-    .getElementById("delete-tournament-btn")
-    .addEventListener(
-        "click",
-        async () => {
+    document.getElementById("delete-tournament-btn").addEventListener("click", async () => {
+        if (editingTournamentId === null) return;
 
-        if (editingTournamentId === null) {
-            return;
-        }
+        const confirmed = confirm("Är du säker på att du vill radera turneringen?");
+        if (!confirmed) return;
 
-        const confirmed = confirm(
-            "Är du säker på att du vill radera turneringen?"
-        );
-
-        if (!confirmed) {
-            return;
-        }
         console.log("Deleting tournament:", editingTournamentId);
 
-        const response = await fetch(
-            "/api/admin/tournaments",
-            {
+        const response = await fetch("/api/admin/tournaments", {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             credentials: "same-origin",
-            body: JSON.stringify({
-                id: editingTournamentId
-            })
-            }
-        );
+            body: JSON.stringify({ id: editingTournamentId })
+        });
 
         if (!response.ok) {
             const data = await response.json();
-                console.error("Delete error:", data);
-
-
-            document
-            .getElementById("error-message")
-            .textContent =
-                data.error ||
-                "Kunde inte radera turneringen";
-
+            console.error("Delete error:", data);
+            document.getElementById("error-message").textContent = data.error || "Kunde inte radera turneringen";
             return;
         }
 
         cancelEditTournament();
-
-        const tournaments =
-            await loadTournaments();
-
-        await populateTournamentSelect(
-            tournaments
-        );
-
-        showToast(
-            "Turneringen har raderats!",
-            "error"
-        );
-        }
-    );
+        const tournaments = await loadTournaments();
+        await populateTournamentSelect(tournaments);
+        showToast("Turneringen har raderats!", "error");
+    });
 
     const tournaments = await loadTournaments();
     await populateTournamentSelect(tournaments);

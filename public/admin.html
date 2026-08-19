@@ -100,7 +100,19 @@
               <label for="start_date">Startdatum</label>
               <input type="date" id="start_date" name="start_date">
             </div>
-            
+            <h4>Poäng: </h4>
+            <div class="form-group">
+              <label for="rule-exact_score">Rätt resultat</label>
+              <input type="number" id="rule-exact_score" min="0">
+          </div>
+            <div class="form-group">
+              <label for="rule-correct_diff">Rätt målskillnad</label>
+              <input type="number" id="rule-correct_diff" min="0">
+            </div>
+            <div class="form-group">
+              <label for="rule-correct_winner">Rätt vinnare/oavgjort</label>
+              <input type="number" id="rule-correct_winner" min="0">
+            </div>
             <div class="form-group checkbox-group">
               <label>
                 <input type="checkbox" id="active" name="active" value="1">

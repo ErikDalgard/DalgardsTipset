@@ -119,14 +119,12 @@ export async function onRequestPatch(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;
 
-  const {
-    id,
-    label  } = await context.request.json();
+  const {id, label, points } = await context.request.json();
 
-  if (!id || !label) {
+  if (!id || (label === undefined && points === undefined)) {
     return new Response(
       JSON.stringify({
-        error: "id, label krävs"
+        error: "id krävs, samt minst ett av label/points"
       }),
       {
         status: 400,
@@ -136,25 +134,25 @@ export async function onRequestPatch(context) {
   }
 
   try {
-    const result = await context.env.DB.prepare(`
-        UPDATE prediction_questions
-        SET
-            label = ?
-        WHERE id = ?
-
-    `)
-      .bind(label, id).run();
+    // Bygg query beroende på vilka fält som faktiskt skickades in
+    if (label !== undefined && points !== undefined) {
+      await context.env.DB.prepare(
+        "UPDATE prediction_questions SET label = ?, points = ? WHERE id = ?"
+      ).bind(label, points, id).run();
+    } else if (label !== undefined) {
+      await context.env.DB.prepare(
+        "UPDATE prediction_questions SET label = ? WHERE id = ?"
+      ).bind(label, id).run();
+    } else {
+      await context.env.DB.prepare(
+        "UPDATE prediction_questions SET points = ? WHERE id = ?"
+      ).bind(points, id).run();
+    }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        id
-      }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
+      JSON.stringify({ success: true, id }),
+      { headers: { "Content-Type": "application/json" } }
     );
-
   } catch (err) {
     console.error("PATCH /api/admin/prediction_questions FEL:", err);
 
