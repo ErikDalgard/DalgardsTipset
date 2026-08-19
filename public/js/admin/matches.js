@@ -248,6 +248,8 @@ export async function setupMatchManagement() {
     document.getElementById("create-match-card").hidden = false;
     document.getElementById("create-match-btn").hidden = true;
     document.getElementById("cancel-create-match").hidden = false;
+    document.getElementById("delete-match-btn").hidden = true;
+
     document.getElementById("match-form").reset();
     document.getElementById("match-error-message").textContent = "";
     populateTeamSelects();
@@ -259,14 +261,12 @@ export async function setupMatchManagement() {
     document.getElementById("match-form").reset();
     document.getElementById("match-error-message").textContent = "";
 
-    document.querySelector("#create-match-card h3").textContent =
-      "Lägg till match";
+
 
     document.querySelector("#match-form button[type='submit']").textContent =
       "Skapa match";
     
     document.getElementById("edit-match-btn").hidden = false;
-    
 
     hideMatchForm();
   }
@@ -276,6 +276,42 @@ export async function setupMatchManagement() {
     document.getElementById("create-match-btn").hidden = false;
     document.getElementById("cancel-create-match").hidden = true;
   }
+
+    document.getElementById("delete-match-btn").addEventListener("click", async () => {
+      if (editingMatchId === null) return;
+
+      const confirmed = confirm(
+        "Är du säker på att du vill radera matchen?\n\nAlla användares tips på matchen kommer också att raderas."
+      );
+
+      if (!confirmed) return;
+
+      const response = await fetch("/api/admin/matches", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ id: editingMatchId })
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        showToast(data.error || "Kunde inte radera matchen");
+        return;
+      }
+
+      editingMatchId = null;
+
+      document.getElementById("match-form").reset();
+      document.getElementById("delete-match-btn").hidden = true;
+      document.getElementById("edit-match-btn").hidden = false;
+
+      hideMatchForm();
+
+      await loadMatches();
+      await populateTeamSelects();
+
+      showToast("Matchen har raderats!", "error");
+  });
 
   function formatDateTimeLocal(dateString) {
     const date = new Date(dateString);
@@ -319,6 +355,7 @@ export async function setupMatchManagement() {
     document.getElementById("create-match-btn").hidden = true;
     document.getElementById("edit-match-btn").hidden = true;
     document.getElementById("cancel-create-match").hidden = false;
+    document.getElementById("delete-match-btn").hidden = false;
 
     // Avsluta redigeringsläge
     document.querySelectorAll(".match-item").forEach(matchElement => {

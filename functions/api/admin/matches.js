@@ -20,20 +20,35 @@ export async function onRequestGet(context) {
 
   try {
     const { results } = await context.env.DB.prepare(`
-    SELECT
-      matches.id,
-      matches.home_team_id,
-      matches.away_team_id,
-      matches.kickoff_at,
-      matches.deadline_at,
-      matches.stage,
-      matches.status,
-      home.name AS home_team,
-      away.name AS away_team
+      SELECT
+        matches.id,
+        matches.home_team_id,
+        matches.away_team_id,
+        matches.kickoff_at,
+        matches.deadline_at,
+        matches.stage,
+        matches.status,
+
+        home.name AS home_team,
+        away.name AS away_team,
+
+        match_results.home_score,
+        match_results.away_score,
+        match_results.winner_team_id
+
       FROM matches
-      JOIN teams AS home ON matches.home_team_id = home.id
-      JOIN teams AS away ON matches.away_team_id = away.id
+
+      JOIN teams AS home
+        ON matches.home_team_id = home.id
+
+      JOIN teams AS away
+        ON matches.away_team_id = away.id
+
+      LEFT JOIN match_results
+        ON matches.id = match_results.match_id
+
       WHERE matches.tournament_id = ?
+
       ORDER BY matches.kickoff_at
     `)
       .bind(tournamentId)
