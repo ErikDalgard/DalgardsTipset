@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dalgardstipset</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="logo">
+      <img src="icons/logo.png" alt="Dalgardstipset">
+    </a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Meny">
+      ☰
+    </button>
+    <nav class="site-nav" id="site-nav">
+      <a href="/" class="nav-link">Hem</a>
+      <a href="mina-tips.html" class="nav-link">Mina tips</a>
+      <a href="ställning.html" class="nav-link">Ställning</a>
+      <a href="admin.html" class="nav-link">Admin</a>
+      <button id="logout-btn" class="btn btn-danger">
+        Logga ut
+      </button>
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="page">
+
+  <h1 id="greeting"></h1>
+
+
+  <!-- =========================
+       TOPPLISTA
+       ========================= -->
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2>Ställning</h2>
+        <p class="section-description">
+          Spelarnas totala poäng.
+        </p>
+      </div>
+    </div>
+
+    <!-- JS fyller denna med spelarna -->
+    <div id="standings-list">
+      <!--
+        Exempel:
+
+        🥇 Erik       47 poäng
+        🥈 Kalle      42 poäng
+        🥉 Lisa       39 poäng
+        4. Anna       31 poäng
+      -->
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       POÄNG ÖVER TID
+       ========================= -->
+
+  <section class="card">
+
+    <div class="card-header">
+      <div>
+        <h2>Poäng över tid</h2>
+
+        <p class="section-description">
+          Se hur spelarnas poäng utvecklas under turneringen.
+        </p>
+      </div>
+    </div>
+
+    <!--
+      Här kommer grafen senare.
+
+      JS kommer använda:
+      #points-history-chart
+    -->
+
+    <div id="points-history-chart">
+      <!-- Graf kommer här -->
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       ALLA TIPS
+       ========================= -->
+
+  <section class="card">
+
+    <div class="card-header">
+      <div>
+        <h2>Alla tips</h2>
+
+        <p class="section-description">
+          Se alla spelares tips och poäng.
+        </p>
+      </div>
+    </div>
+
+
+    <!-- FILTER -->
+    <div id="standings-filters">
+
+      <!-- Spelare -->
+      <select id="player-filter">
+        <option value="all">Alla spelare</option>
+      </select>
+
+
+      <!-- Matcher -->
+      <select id="match-filter">
+        <option value="all">Alla matcher</option>
+      </select>
+
+    </div>
+
+
+    <!--
+      Här kommer alla matcher/tips senare.
+
+      Exempel på struktur som JS kan skapa:
+
+      18 juni
+
+      Sverige - Brasilien
+      Resultat: 2 - 1
+
+      Erik      2 - 1      +3 ✓
+      Kalle     1 - 1       0 ✕
+      Lisa      2 - 0      +1
+    -->
+
+    <div id="all-predictions">
+      <!-- JS fyller denna -->
+    </div>
+
+  </section>
+
+
+</main>
+
+
+<!-- =========================
+     JAVASCRIPT
+     ========================= -->
+
+<script src="js/shared/nav.js"></script>
+<script src="js/shared/auth-guard.js"></script>
+<script src="js/shared/greeting.js"></script>
+
+<!-- Kommer vi skapa -->
+
+</body>
+</html>

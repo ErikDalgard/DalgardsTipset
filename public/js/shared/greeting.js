@@ -5,12 +5,6 @@
   document.getElementById("greeting").textContent = getGreeting(user.username);
 })();
 
-
-//Navigering
-document.getElementById("logout-btn").addEventListener("click", logout);
-
-
-
 // Hälsningsfunction
 function getGreeting(username) {
   const hour = new Date().getHours();
