@@ -139,3 +139,107 @@ function renderTodaysMatches() {
 }
 
 loadTodaysMatches();
+
+
+
+async function loadUpcomingMatches() {
+    try {
+        // Hämta både alla användare och dagens matcher parallellt
+
+        const response = await fetch("/api/user/matches?coming_games=3");
+
+        if (!response.ok){
+            throw new Error("Kunde inte hämta upcoming matches");
+        }
+
+        futureGames = await response.json();
+
+    } catch (error) {
+        console.error(error);
+    }
+
+    renderUpcomingMatches();
+}
+
+
+function renderUpcomingMatches() {
+    const list = document.getElementById("next-tips-list");
+
+    list.innerHTML = "";
+    list.className = "list";
+
+    if (futureGames.length === 0) {
+        const message = document.createElement("p");
+        message.className = "no-matches-message";
+        message.textContent = "Du har inga matcher att tippa just nu";
+
+        list.appendChild(message);
+        return;
+    }
+
+    let currentDate = null;
+    let dateGroup = null;
+
+    futureGames.forEach(match => {
+        const date = new Date(match.kickoff_at);
+        const dateKey = date.toLocaleDateString("sv-SE");
+
+        // NYTT DATUM
+        if (dateKey !== currentDate) {
+            currentDate = dateKey;
+
+            dateGroup = document.createElement("div");
+            dateGroup.className = "match-date-group";
+
+            const dateHeading = document.createElement("h3");
+            dateHeading.className = "date_of_game";
+            dateHeading.textContent = date.toLocaleDateString("sv-SE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            });
+
+            dateGroup.appendChild(dateHeading);
+            list.appendChild(dateGroup);
+        }
+
+        // MATCH
+        const li = document.createElement("li");
+        li.className = "match-item editable";
+
+        // Gör matchen klickbar
+        li.addEventListener("click", () => {
+            window.location.href = `mina-tips.html?match=${match.id}`;
+        });
+
+        const teams = document.createElement("div");
+        teams.className = "match-teams";
+
+        const homeTeam = document.createElement("span");
+        homeTeam.textContent = match.home_team;
+
+        const vs = document.createElement("span");
+        vs.textContent = " - ";
+
+        const awayTeam = document.createElement("span");
+        awayTeam.textContent = match.away_team;
+
+        teams.appendChild(homeTeam);
+        teams.appendChild(vs);
+        teams.appendChild(awayTeam);
+
+        // TID
+        const time = document.createElement("span");
+        time.className = "match-time";
+        time.textContent = date.toLocaleTimeString("sv-SE", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        li.appendChild(teams);
+        li.appendChild(time);
+
+        dateGroup.appendChild(li);
+    });
+}
+loadUpcomingMatches();

@@ -59,7 +59,9 @@ export async function onRequestGet(context) {
             }
         );
 
-    } else {
+    } 
+    
+    else {
 
         const response = await context.env.DB.prepare(`
             SELECT 

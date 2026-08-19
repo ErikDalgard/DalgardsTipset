@@ -1,6 +1,6 @@
 async function requireAuth() {
 // Kolla om jag är inloggad
-  const response = await fetch("/api/me", { credentials: "same-origin" });
+  const response = await fetch("/api/auth/me", { credentials: "same-origin" });
 
   //om inte kasta tillbaka till login sida
   if (!response.ok) {
