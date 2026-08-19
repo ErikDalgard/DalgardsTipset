@@ -226,6 +226,5 @@ export async function setupUserManagement(){
     });
 
 
-    document.getElementById("logout-btn").addEventListener("click", logout);
     await loadUsers();
 }

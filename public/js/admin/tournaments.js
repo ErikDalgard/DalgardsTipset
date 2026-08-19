@@ -94,6 +94,90 @@ export async function setupTournamentManagement() {
         }
     }
 
+        // Hämtar alla användare och visar vilka som deltar i turneringen
+        async function loadTournamentParticipants(tournamentId) {
+            const response = await fetch(
+                `/api/admin/tournament_participants?tournament_id=${tournamentId}`,
+                { credentials: "same-origin" }
+            );
+
+            if (!response.ok) {
+                console.error("Kunde inte hämta deltagare");
+                return;
+            }
+
+            const users = await response.json();
+
+            const list = document.getElementById("tournament-users-list");
+            list.innerHTML = "";
+
+            users.forEach(user => {
+                const label = document.createElement("label");
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = user.id;
+                checkbox.checked = user.participant === 1;
+
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(` ${user.username}`));
+
+                list.appendChild(label);
+            });
+        }
+        // Sparar vilka användare som deltar i turneringen
+        async function saveTournamentParticipants(tournamentId) {
+
+            // Hämta nuvarande deltagare från databasen
+            const response = await fetch(
+                `/api/admin/tournament_participants?tournament_id=${tournamentId}`,
+                { credentials: "same-origin" }
+            );
+
+            if (!response.ok) {
+                console.error("Kunde inte hämta nuvarande deltagare");
+                return;
+            }
+
+            const users = await response.json();
+
+            const checkboxes = document.querySelectorAll(
+                "#tournament-users-list input[type='checkbox']"
+            );
+
+            for (const checkbox of checkboxes) {
+                const userId = Number(checkbox.value);
+                const user = users.find(u => u.id === userId);
+
+                if (!user) continue;
+
+                // Ska vara med men är inte med
+                if (checkbox.checked && user.participant === 0) {
+                    await fetch("/api/admin/tournament_participants", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "same-origin",
+                        body: JSON.stringify({
+                            tournament_id: tournamentId,
+                            user_id: userId
+                        })
+                    });
+                }
+
+                // Ska inte vara med men är med
+                if (!checkbox.checked && user.participant === 1) {
+                    await fetch("/api/admin/tournament_participants", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "same-origin",
+                        body: JSON.stringify({
+                            tournament_id: tournamentId,
+                            user_id: userId
+                        })
+                    });
+                }
+            }
+        }
     // Funktion för att editera en turnering
     async function startEditTournament(tournament) {
         editingTournamentId = tournament.id;
@@ -103,6 +187,7 @@ export async function setupTournamentManagement() {
         document.getElementById("active").checked = tournament.active === 1;
 
         await loadScoringRules(tournament.id);
+        await loadTournamentParticipants(tournament.id);
 
         document.getElementById("tournament-form-title").textContent = "Redigera turnering";
         document.getElementById("tournament-submit-btn").textContent = "Spara ändringar";
@@ -155,6 +240,7 @@ export async function setupTournamentManagement() {
             }
 
             await saveScoringRules(editingTournamentId);
+            await saveTournamentParticipants(editingTournamentId);
             cancelEditTournament();
 
             const tournaments = await loadTournaments();
@@ -183,7 +269,9 @@ export async function setupTournamentManagement() {
         }
 
         const created = await response.json();
+
         await saveScoringRules(created.id);
+        await saveTournamentParticipants(created.id);
 
         document.getElementById("tournament-form").reset();
 

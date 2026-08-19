@@ -16,3 +16,11 @@ async function logout() {
   await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
   window.location.href = "/login.html";
 }
+
+// Koppla utloggningsknappen automatiskt om den finns på sidan
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+});
