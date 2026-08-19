@@ -86,6 +86,9 @@ export async function onRequestPost(context) {
     `)
       .bind(question_id,correct_answer_value).run();
 
+    // Räkna om poäng för alla svar på frågan nu när facit är satt
+    await calculateAndSaveQuestionPoints(context.env.DB, question_id, correct_answer_value);
+
     return new Response(
       JSON.stringify({
         id: result.meta.last_row_id
@@ -144,6 +147,10 @@ export async function onRequestPatch(context) {
 
     `)
       .bind(correct_answer_value,question_id).run();
+
+    // Räkna om poäng för alla svar - både om facit sätts första gången
+    // via PATCH, och om admin rättar ett redan satt facit
+    await calculateAndSaveQuestionPoints(context.env.DB, question_id, correct_answer_value);
 
     return new Response(
       JSON.stringify({
@@ -223,5 +230,29 @@ export async function onRequestDelete(context) {
         headers: { "Content-Type": "application/json" }
       }
     );
+  }
+}
+
+//hjälpfunktion
+async function calculateAndSaveQuestionPoints(db, question_id, correct_answer_value) {
+  // Hämta frågans poängvärde
+  const question = await db.prepare(
+    "SELECT points FROM prediction_questions WHERE id = ?"
+  ).bind(question_id).first();
+
+  // Hämta alla svar på frågan
+  const { results: answers } = await db.prepare(
+    "SELECT id, answer_value FROM prediction_answers WHERE question_id = ?"
+  ).bind(question_id).all();
+
+  // Rätt svar ger frågans poängvärde, fel svar ger 0
+  for (const answer of answers) {
+    const points = answer.answer_value === correct_answer_value
+      ? question.points
+      : 0;
+
+    await db.prepare(
+      "UPDATE prediction_answers SET points = ? WHERE id = ?"
+    ).bind(points, answer.id).run();
   }
 }

@@ -112,6 +112,7 @@ export async function setupQuestionManagement() {
         errorMessage.textContent = "";
 
         const question = document.getElementById("question").value.trim();
+        const points = Number(document.getElementById("question-points").value);
 
         if (!question) {
             errorMessage.textContent = "Frågan får inte vara tom.";
@@ -129,7 +130,8 @@ export async function setupQuestionManagement() {
                 credentials: "same-origin",
                 body: JSON.stringify({
                     id: editingQuestionsId,
-                    label: question
+                    label: question,
+                    points: points
                 })
             });
 
@@ -258,8 +260,9 @@ export async function setupQuestionManagement() {
                 // Visa radera
                 document.getElementById("delete-edit-question-btn").hidden = false;
 
-                // Fyll i befintlig fråga
+                // Fyll i befintlig fråga samt hur mycket poäng
                 document.getElementById("question").value = question.label;
+                document.getElementById("question-points").value = question.points;
 
                 document.getElementById("question-submit-btn").textContent =
                     "Spara ändringar";

@@ -120,8 +120,8 @@ function renderMatches() {
 
             savePredictionToApi(
                 u.id,
-                Number(homePrediction.value),
-                Number(awayPrediction.value)
+                homePrediction.value === "" ? null : Number(homePrediction.value),
+                awayPrediction.value === "" ? null : Number(awayPrediction.value)
             );
         }
 

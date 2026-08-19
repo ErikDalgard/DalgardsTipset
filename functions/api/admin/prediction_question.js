@@ -25,7 +25,8 @@ export async function onRequestGet(context){
         SELECT 
             id,
             tournament_id,
-            label
+            label,
+            points
         FROM 
             prediction_questions
         WHERE 
