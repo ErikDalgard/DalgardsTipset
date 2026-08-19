@@ -77,8 +77,6 @@ export async function setupTeamManagement() {
 
       document.getElementById("team-form").reset();
 
-      document.querySelector("#create-team-card h3").textContent =
-        "Lägg till lag";
 
       document.querySelector("#team-form button[type='submit']").textContent =
         "Skapa lag";
@@ -194,9 +192,6 @@ function startEditTeam(team) {
   document.getElementById("team-name").value = team.name;
   document.getElementById("team-group").value = team.group_name || "";
 
-  // Ändra rubrik
-  document.querySelector("#create-team-card h3").textContent =
-    "Redigera lag";
 
   // Ändra submit-knapp
   document.querySelector("#team-form button[type='submit']").textContent =

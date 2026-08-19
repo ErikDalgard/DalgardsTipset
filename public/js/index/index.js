@@ -166,6 +166,12 @@ function renderTodaysMatches() {
 
 loadTodaysMatches();
 
+const scoreCard = document.getElementById("user-score-card");
+
+scoreCard.addEventListener("click", () => {
+    window.location.href = "stallning.html";
+});
+
 
 
 async function loadUpcomingMatches() {
@@ -231,11 +237,11 @@ function renderUpcomingMatches() {
 
         // MATCH
         const li = document.createElement("li");
-        li.className = "match-item editable";
+        li.className = "match-item clickable";
 
         // Gör matchen klickbar
         li.addEventListener("click", () => {
-            window.location.href = `mina-tips.html?match=${match.id}`;
+            window.location.href = `mina-tips.html`;
         });
 
         const teams = document.createElement("div");

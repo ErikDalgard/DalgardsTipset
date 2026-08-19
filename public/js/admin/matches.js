@@ -25,7 +25,7 @@ export async function setupMatchManagement() {
   //Klickas redigera en match görs alla matcher klickbara om man klickar körs selektMatchto Edit funktion.
   document.getElementById("edit-match-btn").addEventListener("click", ()=>{
     document.querySelectorAll(".match-item").forEach(matchElement=>{
-      matchElement.classList.add("editable");
+      matchElement.classList.add("clickable");
       matchElement.addEventListener("click", selectMatchToEdit);
     })
     showToast("Klicka på matchen du vill redigera");

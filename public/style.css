@@ -75,6 +75,26 @@ select {
   font: inherit;
 }
 
+.clickable {
+  cursor: pointer;
+  position: relative;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.clickable:hover {
+  background-color: var(--color-primary-light);
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 0 2px var(--color-primary),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+
+  border-radius: var(--radius-lg);
+}
 
 /* =========================================================
    TYPOGRAFI
@@ -753,17 +773,6 @@ section {
 }
 
 
-.match-item.editable {
-  cursor: pointer;
-  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
-}
-
-.match-item.editable:hover {
-  background-color: var(--color-primary-light, #f5f5f5);
-  border-radius: 1rem;
-  padding: 1rem;
-  transform: translateY(-1px);
-}
 
 .list .question-item {
     display: grid;
@@ -1141,17 +1150,11 @@ section {
    DAGENS MATCHER
    ========================================================= */
 
-/* =========================================================
-   DAGENS MATCHER - DESIGN SYSTEM ANPASSNING
-   ========================================================= */
-
-/* Själva kortet behåller snygga skuggor och rundade hörn intakta */
 .todays-matches-card {
     padding: 1.5rem;
     overflow: hidden; /* Förhindrar att något läcker utanför de rundade hörnen */
 }
 
-/* Wrappern som hanterar scrollen inuti kortet */
 .table-scroll-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -1163,7 +1166,7 @@ section {
     display: grid;
     gap: 12px 16px;
     align-items: center;
-    min-width: 550px; /* Ser till att kolumnerna inte pressas ihop för hårt, vilket tvingar fram scrollen på små skärmar */
+    min-width: 550px;
 }
 
 /* Headern */
