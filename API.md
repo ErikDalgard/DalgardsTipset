@@ -1,8 +1,110 @@
-## Admin API
+# API Documentation
 
-Alla endpoints under `/api/admin/` kräver att användaren är **inloggad som administratör**.
+The API is divided into three areas:
 
-Autentisering sker via en `session`-cookie. Om användaren inte är inloggad som administratör returnerar API:t:
+- `/api/auth/` — authentication and sessions
+- `/api/user/` — endpoints used by regular users
+- `/api/admin/` — administrative endpoints
+
+All endpoints return JSON.
+
+---
+
+# Authentication API
+
+Authentication uses a session-based system.
+
+After a successful login, the server creates a session in the database and sends a `HttpOnly` cookie named `session`. The browser automatically sends this cookie with subsequent requests.
+
+## POST `/api/auth/login`
+
+Logs a user in.
+
+### Request body
+
+```json
+{
+  "username": "erik",
+  "password": "password"
+}
+```
+
+### Success
+
+```json
+{
+  "success": true
+}
+```
+
+A `session` cookie is set with:
+
+- `HttpOnly`
+- `SameSite=Strict`
+- `Path=/`
+- `Max-Age=2592000` (30 days)
+
+### Invalid credentials
+
+**Status:** `401`
+
+```json
+{
+  "error": "Fel användarnamn eller lösenord"
+}
+```
+
+---
+
+## POST `/api/auth/logout`
+
+Logs the current user out.
+
+The current session is removed from the database and the `session` cookie is cleared.
+
+### Response
+
+```json
+{
+  "success": true
+}
+```
+
+---
+
+## GET `/api/auth/me`
+
+Returns information about the currently logged-in user.
+
+### Success
+
+```json
+{
+  "id": 5,
+  "username": "erik",
+  "is_admin": 0
+}
+```
+
+### Not logged in
+
+**Status:** `401`
+
+```json
+{
+  "error": "Ej inloggad"
+}
+```
+
+---
+
+# Admin API
+
+All endpoints under `/api/admin/` require an authenticated administrator.
+
+If the user is not an administrator:
+
+**Status:** `403`
 
 ```json
 {
@@ -10,74 +112,15 @@ Autentisering sker via en `session`-cookie. Om användaren inte är inloggad som
 }
 ```
 
-med HTTP-status `403`.
-
-Alla endpoints returnerar JSON.
-
----
-
 ## Matches
 
-### GET `/api/admin/matches`
+### GET `/api/admin/matches?tournament_id=X`
 
-Hämtar alla matcher för en specifik turnering.
-
-#### Query parameters
-
-| Parameter       | Typ     | Obligatorisk | Beskrivning        |
-| --------------- | ------- | ------------ | ------------------ |
-| `tournament_id` | integer | Ja           | ID för turneringen |
-
-#### Exempel
-
-```http
-GET /api/admin/matches?tournament_id=1
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "home_team_id": 2,
-    "away_team_id": 3,
-    "kickoff_at": "2026-08-20T18:00:00.000Z",
-    "deadline_at": "2026-08-20T17:00:00.000Z",
-    "stage": "group",
-    "status": "scheduled",
-    "home_team": "Team A",
-    "away_team": "Team B"
-  }
-]
-```
-
-Om `tournament_id` saknas:
-
-```json
-{
-  "error": "tournament_id krävs"
-}
-```
-
-Status: `400`
-
----
+Returns all matches for a tournament.
 
 ### POST `/api/admin/matches`
 
-Skapar en ny match.
-
-#### Request body
-
-| Fält            | Typ     | Obligatorisk | Beskrivning        |
-| --------------- | ------- | ------------ | ------------------ |
-| `tournament_id` | integer | Ja           | ID för turneringen |
-| `home_team_id`  | integer | Ja           | ID för hemmalaget  |
-| `away_team_id`  | integer | Ja           | ID för bortalaget  |
-| `kickoff_at`    | string  | Ja           | Matchens starttid  |
-
-#### Exempel
+Creates a match.
 
 ```json
 {
@@ -88,32 +131,11 @@ Skapar en ny match.
 }
 ```
 
-`deadline_at` beräknas automatiskt till **en timme före kickoff**.
-
-#### Response
-
-```json
-{
-  "id": 15
-}
-```
-
----
+`deadline_at` is automatically set to one hour before kickoff.
 
 ### PATCH `/api/admin/matches`
 
-Uppdaterar en befintlig match.
-
-#### Request body
-
-| Fält           | Typ     | Obligatorisk | Beskrivning       |
-| -------------- | ------- | ------------ | ----------------- |
-| `id`           | integer | Ja           | ID för matchen    |
-| `home_team_id` | integer | Ja           | ID för hemmalaget |
-| `away_team_id` | integer | Ja           | ID för bortalaget |
-| `kickoff_at`   | string  | Ja           | Matchens starttid |
-
-#### Exempel
+Updates a match.
 
 ```json
 {
@@ -124,23 +146,11 @@ Uppdaterar en befintlig match.
 }
 ```
 
-`deadline_at` beräknas automatiskt till en timme före den nya kickoff-tiden.
-
-#### Response
-
-```json
-{
-  "success": true
-}
-```
-
----
+The deadline is recalculated from the new kickoff time.
 
 ### DELETE `/api/admin/matches`
 
-Raderar en match.
-
-#### Request body
+Deletes a match.
 
 ```json
 {
@@ -148,73 +158,17 @@ Raderar en match.
 }
 ```
 
-#### Response
-
-```json
-{
-  "success": true
-}
-```
-
 ---
 
 ## Match Results
 
-### GET `/api/admin/match_results`
+### GET `/api/admin/match_results?match_id=X`
 
-Hämtar resultatet för en match.
-
-#### Query parameters
-
-| Parameter  | Typ     | Obligatorisk | Beskrivning    |
-| ---------- | ------- | ------------ | -------------- |
-| `match_id` | integer | Ja           | ID för matchen |
-
-#### Exempel
-
-```http
-GET /api/admin/match_results?match_id=15
-```
-
-#### Response
-
-Om ett resultat finns:
-
-```json
-{
-  "match_id": 15,
-  "home_score": 2,
-  "away_score": 1,
-  "after_extra_time": 0,
-  "after_penalties": 0,
-  "winner_team_id": 2
-}
-```
-
-Om inget resultat finns:
-
-```json
-null
-```
-
----
+Returns the result of a match, or `null` if no result exists.
 
 ### PATCH `/api/admin/match_results`
 
-Skapar eller uppdaterar resultatet för en match.
-
-#### Request body
-
-| Fält               | Typ     | Obligatorisk | Beskrivning                            |
-| ------------------ | ------- | ------------ | -------------------------------------- |
-| `match_id`         | integer | Ja           | ID för matchen                         |
-| `home_score`       | integer | Ja           | Hemmalagets resultat                   |
-| `away_score`       | integer | Ja           | Bortalagets resultat                   |
-| `after_extra_time` | boolean | Nej          | Om matchen avgjordes efter förlängning |
-| `after_penalties`  | boolean | Nej          | Om matchen avgjordes efter straffar    |
-| `winner_team_id`   | integer | Nej          | ID för vinnande lag                    |
-
-#### Exempel
+Creates or updates a match result.
 
 ```json
 {
@@ -227,68 +181,21 @@ Skapar eller uppdaterar resultatet för en match.
 }
 ```
 
-#### Response
-
-```json
-{
-  "success": true
-}
-```
+`after_extra_time`, `after_penalties`, and `winner_team_id` are optional.
 
 ---
 
 ## Teams
 
-### GET `/api/admin/teams`
+### GET `/api/admin/teams?tournament_id=X`
 
-Hämtar alla lag för en turnering.
+Returns all teams belonging to a tournament.
 
-#### Query parameters
-
-| Parameter       | Typ     | Obligatorisk | Beskrivning        |
-| --------------- | ------- | ------------ | ------------------ |
-| `tournament_id` | integer | Ja           | ID för turneringen |
-
-#### Exempel
-
-```http
-GET /api/admin/teams?tournament_id=1
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Team A",
-    "group_name": "A"
-  },
-  {
-    "id": 2,
-    "name": "Team B",
-    "group_name": "A"
-  }
-]
-```
-
-Resultaten sorteras först efter `group_name` och sedan efter `name`.
-
----
+Teams are sorted by group and then name.
 
 ### POST `/api/admin/teams`
 
-Skapar ett nytt lag.
-
-#### Request body
-
-| Fält            | Typ     | Obligatorisk | Beskrivning        |
-| --------------- | ------- | ------------ | ------------------ |
-| `tournament_id` | integer | Ja           | ID för turneringen |
-| `name`          | string  | Ja           | Lagets namn        |
-| `group_name`    | string  | Nej          | Gruppens namn      |
-
-#### Exempel
+Creates a team.
 
 ```json
 {
@@ -298,21 +205,11 @@ Skapar ett nytt lag.
 }
 ```
 
-#### Response
-
-```json
-{
-  "id": 10
-}
-```
-
----
+`group_name` is optional.
 
 ### PATCH `/api/admin/teams`
 
-Uppdaterar ett lag.
-
-#### Request body
+Updates a team.
 
 ```json
 {
@@ -322,43 +219,13 @@ Uppdaterar ett lag.
 }
 ```
 
-#### Response
-
-```json
-{
-  "message": "Laget uppdaterades"
-}
-```
-
-Om laget inte hittas:
-
-```json
-{
-  "error": "Laget hittades inte"
-}
-```
-
-Status: `404`
-
----
-
 ### DELETE `/api/admin/teams`
 
-Raderar ett lag.
-
-#### Request body
+Deletes a team.
 
 ```json
 {
   "id": 10
-}
-```
-
-#### Response
-
-```json
-{
-  "message": "Laget raderades"
 }
 ```
 
@@ -368,103 +235,44 @@ Raderar ett lag.
 
 ### GET `/api/admin/tournaments`
 
-Hämtar alla turneringar.
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "name": "VM 2026",
-    "start_date": "2026-06-11",
-    "active": 1
-  }
-]
-```
-
-Turneringarna sorteras efter `start_date` i fallande ordning.
-
----
+Returns all tournaments, sorted by `start_date` descending.
 
 ### POST `/api/admin/tournaments`
 
-Skapar en ny turnering.
-
-#### Request body
-
-| Fält         | Typ     | Obligatorisk | Beskrivning               |
-| ------------ | ------- | ------------ | ------------------------- |
-| `name`       | string  | Ja           | Turneringens namn         |
-| `start_date` | string  | Nej          | Turneringens startdatum   |
-| `active`     | integer | Nej          | `1` för aktiv, annars `0` |
-
-#### Exempel
+Creates a tournament.
 
 ```json
 {
-  "name": "VM 2026",
+  "name": "World Cup 2026",
   "start_date": "2026-06-11",
   "active": 1
 }
 ```
 
-Om `active` är `1` sätts alla andra turneringar automatiskt till inaktiva.
-
-#### Response
-
-```json
-{
-  "id": 5
-}
-```
-
----
+If `active` is `1`, all other tournaments are automatically deactivated.
 
 ### PATCH `/api/admin/tournaments`
 
-Uppdaterar en turnering.
-
-#### Request body
+Updates a tournament.
 
 ```json
 {
   "id": 5,
-  "name": "VM 2026",
+  "name": "World Cup 2026",
   "start_date": "2026-06-11",
   "active": 1
 }
 ```
 
-Om `active` är `1` sätts alla andra turneringar automatiskt till inaktiva.
-
-#### Response
-
-```json
-{
-  "success": true
-}
-```
-
----
+Setting `active` to `1` also deactivates all other tournaments.
 
 ### DELETE `/api/admin/tournaments`
 
-Raderar en turnering.
-
-#### Request body
+Deletes a tournament.
 
 ```json
 {
   "id": 5
-}
-```
-
-#### Response
-
-```json
-{
-  "success": true
 }
 ```
 
@@ -472,100 +280,38 @@ Raderar en turnering.
 
 ## Prediction Questions
 
-### GET `/api/admin/prediction_question`
+### GET `/api/admin/prediction_question?tournament_id=X`
 
-Hämtar alla utslagsfrågor för en turnering.
-
-#### Query parameters
-
-| Parameter       | Typ     | Obligatorisk | Beskrivning        |
-| --------------- | ------- | ------------ | ------------------ |
-| `tournament_id` | integer | Ja           | ID för turneringen |
-
-#### Exempel
-
-```http
-GET /api/admin/prediction_question?tournament_id=1
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "tournament_id": 1,
-    "label": "Vilket lag vinner turneringen?"
-  }
-]
-```
-
----
+Returns all prediction questions for a tournament.
 
 ### POST `/api/admin/prediction_question`
 
-Skapar en ny utslagsfråga.
-
-#### Request body
+Creates a prediction question.
 
 ```json
 {
   "tournament_id": 1,
-  "label": "Vilket lag vinner turneringen?"
+  "label": "Which team will win the tournament?"
 }
 ```
-
-#### Response
-
-```json
-{
-  "id": 10
-}
-```
-
----
 
 ### PATCH `/api/admin/prediction_question`
 
-Uppdaterar en utslagsfråga.
-
-#### Request body
+Updates a prediction question.
 
 ```json
 {
   "id": 10,
-  "label": "Vilket lag vinner?"
+  "label": "Which team will win?"
 }
 ```
-
-#### Response
-
-```json
-{
-  "success": true,
-  "id": 10
-}
-```
-
----
 
 ### DELETE `/api/admin/prediction_question`
 
-Raderar en utslagsfråga.
-
-#### Request body
+Deletes a prediction question.
 
 ```json
 {
-  "id": 10
-}
-```
-
-#### Response
-
-```json
-{
-  "success": true,
   "id": 10
 }
 ```
@@ -574,39 +320,13 @@ Raderar en utslagsfråga.
 
 ## Question Results
 
-### GET `/api/admin/question_result`
+### GET `/api/admin/question_result?question_id=X`
 
-Hämtar det korrekta svaret för en utslagsfråga.
-
-#### Query parameters
-
-| Parameter     | Typ     | Obligatorisk | Beskrivning          |
-| ------------- | ------- | ------------ | -------------------- |
-| `question_id` | integer | Ja           | ID för utslagsfrågan |
-
-#### Exempel
-
-```http
-GET /api/admin/question_result?question_id=10
-```
-
-#### Response
-
-```json
-[
-  {
-    "correct_answer_value": "Brazil"
-  }
-]
-```
-
----
+Returns the correct answer for a prediction question.
 
 ### POST `/api/admin/question_result`
 
-Skapar ett korrekt svar för en utslagsfråga.
-
-#### Request body
+Creates the correct answer.
 
 ```json
 {
@@ -615,21 +335,9 @@ Skapar ett korrekt svar för en utslagsfråga.
 }
 ```
 
-#### Response
-
-```json
-{
-  "id": 15
-}
-```
-
----
-
 ### PATCH `/api/admin/question_result`
 
-Uppdaterar det korrekta svaret för en utslagsfråga.
-
-#### Request body
+Updates the correct answer.
 
 ```json
 {
@@ -638,34 +346,12 @@ Uppdaterar det korrekta svaret för en utslagsfråga.
 }
 ```
 
-#### Response
-
-```json
-{
-  "success": true,
-  "question_id": 10
-}
-```
-
----
-
 ### DELETE `/api/admin/question_result`
 
-Raderar det korrekta svaret för en utslagsfråga.
-
-#### Request body
+Deletes the correct answer.
 
 ```json
 {
-  "question_id": 10
-}
-```
-
-#### Response
-
-```json
-{
-  "success": true,
   "question_id": 10
 }
 ```
@@ -676,76 +362,29 @@ Raderar det korrekta svaret för en utslagsfråga.
 
 ### GET `/api/admin/users`
 
-Hämtar alla användare.
+Returns all users.
 
-Lösenord och lösenordshash returneras **inte** av endpointen.
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "username": "admin",
-    "is_admin": 1,
-    "created_at": "2026-08-01T12:00:00Z"
-  }
-]
-```
-
-Användarna sorteras efter användarnamn.
-
----
+Passwords and password hashes are never returned.
 
 ### POST `/api/admin/users`
 
-Skapar en ny användare.
-
-#### Request body
-
-| Fält       | Typ     | Obligatorisk | Beskrivning                          |
-| ---------- | ------- | ------------ | ------------------------------------ |
-| `username` | string  | Ja           | Användarnamn                         |
-| `password` | string  | Ja           | Lösenord                             |
-| `is_admin` | boolean | Nej          | Om användaren ska vara administratör |
-
-#### Exempel
+Creates a user.
 
 ```json
 {
   "username": "erik",
-  "password": "lösenord",
+  "password": "password",
   "is_admin": false
 }
 ```
 
-Lösenordet hashas innan det sparas i databasen.
+Passwords are hashed before being stored.
 
-#### Response
-
-```json
-{
-  "id": 10
-}
-```
-
-Om användarnamnet redan används:
-
-```json
-{
-  "error": "Användarnamnet är upptaget"
-}
-```
-
-Status: `409`
-
----
+Returns `409` if the username is already in use.
 
 ### PATCH `/api/admin/users`
 
-Uppdaterar en användare.
-
-#### Request body
+Updates a user.
 
 ```json
 {
@@ -756,23 +395,11 @@ Uppdaterar en användare.
 }
 ```
 
-Om `password` är en tom sträng behålls det befintliga lösenordet. Om ett nytt lösenord anges hashas det innan det sparas.
-
-#### Response
-
-```json
-{
-  "success": true
-}
-```
-
----
+An empty password keeps the existing password.
 
 ### DELETE `/api/admin/users`
 
-Raderar en användare.
-
-#### Request body
+Deletes a user.
 
 ```json
 {
@@ -780,46 +407,15 @@ Raderar en användare.
 }
 ```
 
-#### Response
-
-```json
-{
-  "success": true
-}
-```
-
 ---
 
-## Gemensamma fel
+# User API
 
-Admin-endpoints kan returnera följande vanliga statuskoder:
+The `/api/user/` endpoints are used by the website.
 
-| Status | Betydelse                                  |
-| ------ | ------------------------------------------ |
-| `400`  | Obligatorisk parameter eller data saknas   |
-| `403`  | Användaren är inte administratör           |
-| `404`  | Resursen hittades inte                     |
-| `409`  | Konflikt, exempelvis upptaget användarnamn |
-| `500`  | Ett internt server-/databasfel inträffade  |
+Some endpoints use the current session. The endpoints that explicitly check authentication return:
 
-När ett fel uppstår returneras normalt ett JSON-objekt med ett `error`-fält:
-
-```json
-{
-  "error": "Beskrivning av felet"
-}
-```
-
-
-## User API
-
-Endpoints under `/api/user/` används av användare på webbplatsen.
-
-Vissa endpoints kräver att användaren är inloggad. Autentisering sker via `session`-cookie.
-
-### Autentisering
-
-Endpoints som uttryckligen kräver inloggning returnerar följande om ingen giltig session finns:
+**Status:** `401`
 
 ```json
 {
@@ -827,21 +423,15 @@ Endpoints som uttryckligen kräver inloggning returnerar följande om ingen gilt
 }
 ```
 
-med HTTP-status `401`.
-
 ---
 
 ## Admin Contact
 
 ### GET `/api/user/admin-contact`
 
-Hämtar användarnamnet för en administratör.
+Returns the username of an administrator.
 
-Endpointen kräver inte att användaren är inloggad.
-
-#### Response
-
-Om en administratör finns:
+Does not require authentication.
 
 ```json
 {
@@ -849,7 +439,7 @@ Om en administratör finns:
 }
 ```
 
-Om ingen administratör finns:
+If no administrator exists:
 
 ```json
 {
@@ -863,69 +453,21 @@ Om ingen administratör finns:
 
 ### GET `/api/user/matches`
 
-Hämtar alla matcher för den aktiva turneringen.
-
-Endpointen använder den inloggade användaren för `coming_games`, men den nuvarande implementationen stoppar inte en oinloggad användare.
-
-#### Exempel
-
-```http
-GET /api/user/matches
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "kickoff_at": "2026-08-20T18:00:00.000Z",
-    "deadline_at": "2026-08-20T17:00:00.000Z",
-    "home_team": "Team A",
-    "away_team": "Team B"
-  }
-]
-```
-
----
+Returns all matches in the active tournament.
 
 ### GET `/api/user/matches?coming_games=X`
 
-Hämtar de närmaste `X` framtida matcher som den aktuella användaren **inte har tippat på ännu**.
+Returns the next `X` future matches that the current user has not predicted yet.
 
-Matcherna måste:
+The matches:
 
-* tillhöra den aktiva turneringen
-* ha en kickoff-tid i framtiden
-* sakna ett sparat tips från användaren
+- belong to the active tournament
+- have not started yet
+- do not have a prediction from the current user
 
-Resultaten sorteras efter kickoff, tidigast först.
+The results are sorted by kickoff time.
 
-#### Query parameters
-
-| Parameter      | Typ     | Obligatorisk              | Beskrivning                     |
-| -------------- | ------- | ------------------------- | ------------------------------- |
-| `coming_games` | integer | Ja för begränsat resultat | Antal kommande otippade matcher |
-
-#### Exempel
-
-```http
-GET /api/user/matches?coming_games=3
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 15,
-    "kickoff_at": "2026-08-20T18:00:00.000Z",
-    "deadline_at": "2026-08-20T17:00:00.000Z",
-    "home_team": "Team A",
-    "away_team": "Team B"
-  }
-]
-```
+> Note: the current implementation calls `getCurrentUser()` but does not explicitly reject unauthenticated requests.
 
 ---
 
@@ -933,15 +475,7 @@ GET /api/user/matches?coming_games=3
 
 ### GET `/api/user/match.predictions`
 
-Hämtar den inloggade användarens sparade matchtips.
-
-#### Exempel
-
-```http
-GET /api/user/match.predictions
-```
-
-#### Response
+Returns the current user's saved match predictions.
 
 ```json
 [
@@ -949,68 +483,17 @@ GET /api/user/match.predictions
     "match_id": 15,
     "home_score": 2,
     "away_score": 1
-  },
-  {
-    "match_id": 16,
-    "home_score": 1,
-    "away_score": 1
   }
 ]
 ```
 
----
-
 ### GET `/api/user/match.predictions?today=true`
 
-Hämtar dagens matcher tillsammans med användarens tips.
-
-Response innehåller även användarens användarnamn och ID.
-
-#### Exempel
-
-```http
-GET /api/user/match.predictions?today=true
-```
-
-#### Response
-
-```json
-{
-  "current_username": "erik",
-  "current_user_id": 5,
-  "matches": [
-    {
-      "username": "erik",
-      "match_id": 15,
-      "home_team": "Team A",
-      "away_team": "Team B",
-      "kickoff_at": "2026-08-20T18:00:00.000Z",
-      "deadline_at": "2026-08-20T17:00:00.000Z",
-      "user_id": 5,
-      "home_score": 2,
-      "away_score": 1
-    }
-  ]
-}
-```
-
----
+Returns today's matches together with the current user's predictions.
 
 ### PATCH `/api/user/match.predictions`
 
-Skapar eller uppdaterar användarens tips för en match.
-
-Ett tips kan endast ändras innan matchens deadline.
-
-#### Request body
-
-| Fält         | Typ     | Obligatorisk | Beskrivning                       |
-| ------------ | ------- | ------------ | --------------------------------- |
-| `match_id`   | integer | Ja           | ID för matchen                    |
-| `home_score` | integer | Ja           | Förväntat resultat för hemmalaget |
-| `away_score` | integer | Ja           | Förväntat resultat för bortalaget |
-
-#### Exempel
+Creates or updates a prediction.
 
 ```json
 {
@@ -1020,45 +503,13 @@ Ett tips kan endast ändras innan matchens deadline.
 }
 ```
 
-#### Response
+Predictions cannot be changed after the match deadline.
 
-```json
-{
-  "success": true
-}
-```
+Possible errors include:
 
-#### Fel
-
-Om matchen inte finns:
-
-```json
-{
-  "error": "Matchen finns inte"
-}
-```
-
-Status: `404`
-
-Om deadline har passerat:
-
-```json
-{
-  "error": "Deadline för matchen har passerat"
-}
-```
-
-Status: `403`
-
-Om obligatoriska fält saknas:
-
-```json
-{
-  "error": "Match-id och resultat krävs"
-}
-```
-
-Status: `400`
+- `400` — required fields are missing
+- `403` — match deadline has passed
+- `404` — match does not exist
 
 ---
 
@@ -1066,40 +517,11 @@ Status: `400`
 
 ### GET `/api/user/prediction_questions`
 
-Hämtar alla utslagsfrågor för den aktiva turneringen.
+Returns all prediction questions for the active tournament.
 
-Användarens tidigare svar inkluderas i resultatet om ett svar redan finns.
+The current user's answer is included as `answer`, or `null` if they have not answered yet.
 
-Endpointen kräver inloggning.
-
-#### Exempel
-
-```http
-GET /api/user/prediction_questions
-```
-
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "tournament_id": 5,
-    "label": "Vilket lag vinner turneringen?",
-    "start_date": "2026-06-11",
-    "answer": "Brazil"
-  },
-  {
-    "id": 2,
-    "tournament_id": 5,
-    "label": "Vilket lag gör flest mål?",
-    "start_date": "2026-06-11",
-    "answer": null
-  }
-]
-```
-
-`answer` är `null` om användaren ännu inte har svarat på frågan.
+This endpoint requires authentication.
 
 ---
 
@@ -1107,18 +529,7 @@ GET /api/user/prediction_questions
 
 ### PATCH `/api/user/prediction_answers`
 
-Skapar eller uppdaterar användarens svar på en utslagsfråga.
-
-Endpointen kräver inloggning.
-
-#### Request body
-
-| Fält          | Typ     | Obligatorisk | Beskrivning          |
-| ------------- | ------- | ------------ | -------------------- |
-| `question_id` | integer | Ja           | ID för utslagsfrågan |
-| `answer`      | string  | Ja           | Användarens svar     |
-
-#### Exempel
+Creates or updates the current user's answer to a prediction question.
 
 ```json
 {
@@ -1127,37 +538,13 @@ Endpointen kräver inloggning.
 }
 ```
 
-Om användaren redan har svarat på frågan uppdateras det befintliga svaret.
+This endpoint requires authentication.
 
-#### Response
+Possible errors:
 
-```json
-{
-  "success": true
-}
-```
-
-#### Fel
-
-Om användaren inte är inloggad:
-
-```json
-{
-  "error": "Inte inloggad"
-}
-```
-
-Status: `401`
-
-Om obligatoriska fält saknas:
-
-```json
-{
-  "error": "question_id och answer krävs"
-}
-```
-
-Status: `400`
+- `400` — required fields are missing
+- `401` — user is not logged in
+- `500` — database/server error
 
 ---
 
@@ -1165,23 +552,11 @@ Status: `400`
 
 ### GET `/api/user/tournaments`
 
-Hämtar den aktiva turneringen.
+Returns the active tournament.
 
-Endpointen anropar `getCurrentUser()`, men kräver i nuläget **inte** att användaren faktiskt är inloggad.
+Only one active tournament is returned.
 
-#### Response
-
-```json
-[
-  {
-    "id": 5,
-    "name": "VM 2026",
-    "start_date": "2026-06-11"
-  }
-]
-```
-
-Eftersom frågan använder `LIMIT 1` returneras maximalt en aktiv turnering.
+> Note: the current implementation calls `getCurrentUser()` but does not explicitly require authentication.
 
 ---
 
@@ -1189,42 +564,31 @@ Eftersom frågan använder `LIMIT 1` returneras maximalt en aktiv turnering.
 
 ### GET `/api/user/users`
 
-Hämtar alla användare.
+Returns all users.
 
-Endpointen anropar `getCurrentUser()`, men kräver i nuläget **inte** att användaren faktiskt är inloggad.
+Only `id` and `username` are returned.
 
-Lösenord och lösenordshash returneras inte.
+Users are sorted alphabetically by username.
 
-#### Response
-
-```json
-[
-  {
-    "id": 1,
-    "username": "admin"
-  },
-  {
-    "id": 2,
-    "username": "erik"
-  }
-]
-```
-
-Användarna sorteras alfabetiskt efter användarnamn.
+> Note: the current implementation calls `getCurrentUser()` but does not explicitly require authentication.
 
 ---
 
-## Sammanfattning
+# Common Status Codes
 
-| Endpoint                         | Method | Inloggning | Funktion                  |
-| -------------------------------- | ------ | ---------- | ------------------------- |
-| `/api/user/admin-contact`        | GET    | Nej        | Hämta admin-kontakt       |
-| `/api/user/matches`              | GET    | Nej*       | Hämta matcher             |
-| `/api/user/match.predictions`    | GET    | Ja*        | Hämta egna matchtips      |
-| `/api/user/match.predictions`    | PATCH  | Ja*        | Skapa/uppdatera matchtips |
-| `/api/user/prediction_questions` | GET    | Ja         | Hämta utslagsfrågor       |
-| `/api/user/prediction_answers`   | PATCH  | Ja         | Skapa/uppdatera svar      |
-| `/api/user/tournaments`          | GET    | Nej*       | Hämta aktiv turnering     |
-| `/api/user/users`                | GET    | Nej*       | Hämta användare           |
+| Status | Meaning |
+|---|---|
+| `400` | Invalid or missing input |
+| `401` | Not authenticated |
+| `403` | Insufficient permissions or deadline passed |
+| `404` | Resource not found |
+| `409` | Conflict, e.g. username already exists |
+| `500` | Internal server/database error |
 
-`*` Endpointen anropar `getCurrentUser()`, men kontrollerar inte om resultatet är `null`. Den kräver därför inte faktiskt inloggning i den nuvarande implementationen.
+Errors are generally returned as:
+
+```json
+{
+  "error": "Description of the error"
+}
+```
