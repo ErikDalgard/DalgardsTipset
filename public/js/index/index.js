@@ -2,6 +2,9 @@ let todaysMatches = [];
 let allUsers = [];
 let currentUserId = null;
 let currentUsername = null;
+let futureGames = []; // Lade till denna för att undvika "undefined"-fel i loadUpcomingMatches
+let myPosition = null;
+let myPoints = null;
 
 async function loadTodaysMatches() {
     try {
@@ -36,14 +39,12 @@ async function loadMyPoints(){
             throw new Error ("Kunde inte hämta mina poäng");
         }
 
-        data = await response.json();
+        const data = await response.json(); // Lade till 'const' här för snyggare kod
         myPosition = data.position;
         myPoints = data.points;
         renderMyPoints();
 
-    }
-
-    catch (error){
+    } catch (error){
         console.error(error);
     }
 }
@@ -52,12 +53,13 @@ function renderMyPoints(){
     document.getElementById("user-points").textContent = myPoints;
     document.getElementById("user-position").textContent = myPosition;
 }
+
 loadMyPoints();
 
 function renderTodaysMatches() {
     const mainContainer = document.getElementById("todays-matches");
     mainContainer.innerHTML = "";
-    mainContainer.className = "card todays-matches-card"; // Kortet i botten
+    mainContainer.className = "card todays-matches-card";
 
     if (todaysMatches.length === 0) {
         const message = document.createElement("p");
@@ -67,18 +69,23 @@ function renderTodaysMatches() {
         return;
     }
 
-    // Skapa en scrollbar wrapper inuti kortet
     const scrollWrapper = document.createElement("div");
     scrollWrapper.className = "table-scroll-wrapper";
 
     const gridContainer = document.createElement("div");
     gridContainer.className = "matches-grid";
 
-    // Hämta användare
-    const otherUsers = allUsers.filter(user => user.id !== currentUserId);
+    // =================================================
+    // SORTERA ANVÄNDARE (Du hamnar först)
+    // =================================================
+    const usersToRender = [...allUsers].sort((a, b) => {
+        if (a.id === currentUserId) return -1;
+        if (b.id === currentUserId) return 1;
+        return 0;
+    });
 
-    // Sätt upp Grid-kolumner dynamiskt på grid-containern
-    gridContainer.style.gridTemplateColumns = `2fr repeat(${1 + otherUsers.length}, minmax(70px, 1fr))`;
+    // Sätt upp Grid-kolumner dynamiskt beroende på antal användare
+    gridContainer.style.gridTemplateColumns = `2fr repeat(${usersToRender.length}, minmax(70px, 1fr))`;
 
     // =================================================
     // HEADER
@@ -88,15 +95,11 @@ function renderTodaysMatches() {
     matchHeader.textContent = "Match";
     gridContainer.appendChild(matchHeader);
 
-    const youHeader = document.createElement("div");
-    youHeader.className = "today-user-column header-name";
-    youHeader.textContent = "Du";
-    gridContainer.appendChild(youHeader);
-
-    otherUsers.forEach(user => {
+    usersToRender.forEach(user => {
         const userHeader = document.createElement("div");
         userHeader.className = "today-user-column header-name";
-        userHeader.textContent = user.username;
+        // Kalla inloggad användare för "Du", annars deras namn
+        userHeader.textContent = user.id === currentUserId ? "Du" : user.username;
         gridContainer.appendChild(userHeader);
     });
 
@@ -108,6 +111,7 @@ function renderTodaysMatches() {
     matchIds.forEach(matchId => {
         const matchPredictions = todaysMatches.filter(match => match.match_id === matchId);
         const match = matchPredictions[0];
+        const isLocked = new Date() < new Date(match.deadline_at);
 
         // Match Info
         const matchInfo = document.createElement("div");
@@ -126,22 +130,20 @@ function renderTodaysMatches() {
         matchInfo.appendChild(teams);
         gridContainer.appendChild(matchInfo);
 
-        // DITT TIPS
-        const myPrediction = matchPredictions.find(prediction => prediction.user_id === currentUserId);
-        const myCell = document.createElement("div");
-        myCell.className = "today-prediction my-prediction";
-        myCell.textContent = myPrediction ? `${myPrediction.home_score} – ${myPrediction.away_score}` : "–";
-        gridContainer.appendChild(myCell);
-
-        // DEADLINE-KONTROLL
-        const isLocked = new Date() < new Date(match.deadline_at);
-
-        // ÖVRIGA ANVÄNDARE
-        otherUsers.forEach(user => {
+        // =================================================
+        // TIPS (Loopar alla användare på samma sätt)
+        // =================================================
+        usersToRender.forEach(user => {
             const cell = document.createElement("div");
             cell.className = "today-prediction";
+            
+            // Behåll klassen my-prediction för din egen cell så den kan ha en subtil markering om du vill
+            if (user.id === currentUserId) {
+                cell.classList.add("my-prediction");
+            }
 
-            if (isLocked) {
+            // Dölj andras tips om deadline inte passerat
+            if (isLocked && user.id !== currentUserId) {
                 cell.classList.add("prediction-lock");
                 cell.innerHTML = `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-label="Tips låst">
@@ -151,15 +153,24 @@ function renderTodaysMatches() {
                     </svg>
                 `;
             } else {
-                const prediction = matchPredictions.find(prediction => prediction.user_id === user.id);
-                cell.textContent = prediction ? `${prediction.home_score} – ${prediction.away_score}` : "–";
+                // Hämta tipset (antingen ditt eget som alltid visas, eller andras efter deadline)
+                const prediction = matchPredictions.find(p => p.user_id === user.id);
+                
+                if (prediction && prediction.home_score !== null && prediction.away_score !== null) {
+                    const h = Number(prediction.home_score);
+                    const a = Number(prediction.away_score);
+                    
+                    cell.textContent = `${h} – ${a}`;
+                    addPredictionResultClass(cell, h, a, match);
+                } else {
+                    cell.textContent = "–";
+                }
             }
 
             gridContainer.appendChild(cell);
         });
     });
 
-    // Sätt ihop elementen
     scrollWrapper.appendChild(gridContainer);
     mainContainer.appendChild(scrollWrapper);
 }
@@ -167,17 +178,12 @@ function renderTodaysMatches() {
 loadTodaysMatches();
 
 const scoreCard = document.getElementById("user-score-card");
-
 scoreCard.addEventListener("click", () => {
     window.location.href = "stallning.html";
 });
 
-
-
 async function loadUpcomingMatches() {
     try {
-        // Hämta både alla användare och dagens matcher parallellt
-
         const response = await fetch("/api/user/matches?coming_games=3");
 
         if (!response.ok){
@@ -185,14 +191,12 @@ async function loadUpcomingMatches() {
         }
 
         futureGames = await response.json();
-
     } catch (error) {
         console.error(error);
     }
 
     renderUpcomingMatches();
 }
-
 
 function renderUpcomingMatches() {
     const list = document.getElementById("next-tips-list");
@@ -267,11 +271,40 @@ function renderUpcomingMatches() {
             hour: "2-digit",
             minute: "2-digit"
         });
-
-        li.appendChild(teams);
         li.appendChild(time);
+        li.appendChild(teams);
 
         dateGroup.appendChild(li);
     });
 }
+
 loadUpcomingMatches();
+
+function getMatchOutcome(home, away) {
+    if (home > away) return "home";
+    if (away > home) return "away";
+    return "draw";
+}
+
+function addPredictionResultClass(cell, predictionHome, predictionAway, match) {
+    const resultExists = match.result_home_score !== null && match.result_away_score !== null;
+    if (!resultExists) return;
+
+    const resultHome = Number(match.result_home_score);
+    const resultAway = Number(match.result_away_score);
+
+    // Exakt resultat
+    if (predictionHome === resultHome && predictionAway === resultAway) {
+        cell.classList.add("prediction-exact");
+        return;
+    }
+
+    // Rätt vinnare / oavgjort
+    if (getMatchOutcome(predictionHome, predictionAway) === getMatchOutcome(resultHome, resultAway)) {
+        cell.classList.add("prediction-winner");
+        return;
+    }
+
+    // Fel vinnare
+    cell.classList.add("prediction-wrong");
+}

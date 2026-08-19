@@ -11,7 +11,6 @@ export async function onRequestGet(context) {
     let results;
 
     if (today) {
-
         const response = await context.env.DB.prepare(`
             SELECT
                 users.username,
@@ -35,11 +34,11 @@ export async function onRequestGet(context) {
             JOIN teams AS away_team
                 ON away_team.id = matches.away_team_id
             
-            JOIN users
-                on match_predictions.user_id = users.id
-
             LEFT JOIN match_predictions
                 ON match_predictions.match_id = matches.id
+
+            LEFT JOIN users
+                ON users.id = match_predictions.user_id
 
             WHERE DATE(matches.kickoff_at) = DATE('now', 'localtime')
 
@@ -59,8 +58,8 @@ export async function onRequestGet(context) {
             }
         );
 
-    } 
-    
+    }
+
     else {
 
         const response = await context.env.DB.prepare(`
