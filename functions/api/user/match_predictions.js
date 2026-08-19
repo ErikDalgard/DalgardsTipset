@@ -11,53 +11,58 @@ export async function onRequestGet(context) {
     let results;
 
     if (today) {
-        const response = await context.env.DB.prepare(`
-            SELECT
-                users.username,
-                matches.id AS match_id,
+            const response = await context.env.DB.prepare(`
+                SELECT
+                    users.username,
+                    matches.id AS match_id,
 
-                home_team.name AS home_team,
-                away_team.name AS away_team,
+                    home_team.name AS home_team,
+                    away_team.name AS away_team,
 
-                matches.kickoff_at,
-                matches.deadline_at,
+                    matches.kickoff_at,
+                    matches.deadline_at,
 
-                match_predictions.user_id,
-                match_predictions.home_score,
-                match_predictions.away_score
+                    match_results.home_score AS result_home_score,
+                    match_results.away_score AS result_away_score,
 
-            FROM matches
+                    match_predictions.user_id,
+                    match_predictions.home_score,
+                    match_predictions.away_score
 
-            JOIN teams AS home_team
-                ON home_team.id = matches.home_team_id
+                FROM matches
 
-            JOIN teams AS away_team
-                ON away_team.id = matches.away_team_id
-            
-            LEFT JOIN match_predictions
-                ON match_predictions.match_id = matches.id
+                JOIN teams AS home_team
+                    ON home_team.id = matches.home_team_id
 
-            LEFT JOIN users
-                ON users.id = match_predictions.user_id
+                JOIN teams AS away_team
+                    ON away_team.id = matches.away_team_id
+                
+                LEFT JOIN match_results
+                    ON match_results.match_id = matches.id
 
-            WHERE DATE(matches.kickoff_at) = DATE('now', 'localtime')
+                LEFT JOIN match_predictions
+                    ON match_predictions.match_id = matches.id
 
-            ORDER BY matches.kickoff_at
-        `).all();
+                LEFT JOIN users
+                    ON users.id = match_predictions.user_id
 
-        return new Response(
-            JSON.stringify({
-                current_username: user.username, 
-                current_user_id: user.id,
-                matches: response.results
-            }),
-            {
-                headers: {
-                    "Content-Type": "application/json"
+                WHERE DATE(matches.kickoff_at) = DATE('now', 'localtime')
+
+                ORDER BY matches.kickoff_at
+            `).all();
+
+            return new Response(
+                JSON.stringify({
+                    current_username: user.username, 
+                    current_user_id: user.id,
+                    matches: response.results
+                }),
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
                 }
-            }
-        );
-
+            );
     }
 
     else {

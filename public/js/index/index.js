@@ -137,10 +137,6 @@ function renderTodaysMatches() {
             const cell = document.createElement("div");
             cell.className = "today-prediction";
             
-            // Behåll klassen my-prediction för din egen cell så den kan ha en subtil markering om du vill
-            if (user.id === currentUserId) {
-                cell.classList.add("my-prediction");
-            }
 
             // Dölj andras tips om deadline inte passerat
             if (isLocked && user.id !== currentUserId) {
