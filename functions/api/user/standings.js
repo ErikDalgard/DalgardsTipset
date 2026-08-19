@@ -15,6 +15,9 @@ export async function onRequestGet(context) {
         );
     }
 
+    const url = new URL(context.request.url);
+    const myPoints = url.searchParams.get("my_points") === "true";
+
     try {
         const { results } = await context.env.DB.prepare(`
             SELECT
@@ -53,6 +56,23 @@ export async function onRequestGet(context) {
 
             ORDER BY points DESC
         `).all();
+
+        if (myPoints){
+            const userIndex = results.findIndex(player => Number(player.id) ===Number(user.id))
+
+            const player = results[userIndex]
+            return new Response(
+                    JSON.stringify({
+                        points: player.points,
+                        position: userIndex + 1
+                    }),
+                    {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+        }
 
         return new Response(
             JSON.stringify({

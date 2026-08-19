@@ -28,6 +28,32 @@ async function loadTodaysMatches() {
     }
 }
 
+async function loadMyPoints(){
+    try{
+        const response = await fetch("/api/user/standings?my_points=true");
+
+        if (!response.ok){
+            throw new Error ("Kunde inte hämta mina poäng");
+        }
+
+        data = await response.json();
+        myPosition = data.position;
+        myPoints = data.points;
+        renderMyPoints();
+
+    }
+
+    catch (error){
+        console.error(error);
+    }
+}
+
+function renderMyPoints(){
+    document.getElementById("user-points").textContent = myPoints;
+    document.getElementById("user-position").textContent = myPosition;
+}
+loadMyPoints();
+
 function renderTodaysMatches() {
     const mainContainer = document.getElementById("todays-matches");
     mainContainer.innerHTML = "";
