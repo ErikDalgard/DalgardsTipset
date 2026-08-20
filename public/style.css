@@ -1,5 +1,10 @@
 /* =========================================================
-   DALGARDSTIPSET – DESIGN SYSTEM
+   DALGARDSTIPSET
+   DESIGN SYSTEM
+   ========================================================= */
+
+/* =========================================================
+   1. VARIABLES
    ========================================================= */
 
 :root {
@@ -21,7 +26,7 @@
   --color-danger: #c93636;
   --color-success: #218739;
 
-  /* Sizes */
+  /* Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
@@ -41,12 +46,13 @@
     "Segoe UI",
     sans-serif;
 
---font-family-display: "Space Grotesk", var(--font-family);
+  --font-family-display:
+    var(--font-family);
 }
 
 
 /* =========================================================
-   RESET / BAS
+   2. RESET / BAS
    ========================================================= */
 
 * {
@@ -75,39 +81,17 @@ select {
   font: inherit;
 }
 
-.clickable {
-  cursor: pointer;
-  position: relative;
-
-  transition:
-    background-color 0.15s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+[hidden] {
+  display: none !important;
 }
 
-.clickable:hover {
-  background-color: var(--color-primary-light);
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 0 0 2px var(--color-primary),
-    0 2px 8px rgba(0, 0, 0, 0.08);
-
-  border-radius: var(--radius-lg);
-}
 
 /* =========================================================
-   TYPOGRAFI
+   3. TYPOGRAFI
    ========================================================= */
 
 
-.logo,
-h1,
-h2 {
---font-family-display: "Fredoka", 
-var(--font-family);
 
-}
 h1,
 h2,
 h3 {
@@ -144,7 +128,7 @@ a:hover {
 
 
 /* =========================================================
-   LAYOUT
+   4. LAYOUT
    ========================================================= */
 
 .page {
@@ -153,9 +137,13 @@ a:hover {
   padding: 2rem 0;
 }
 
+section {
+  margin-bottom: 2rem;
+}
+
 
 /* =========================================================
-   HEADER
+   5. HEADER / NAVIGATION
    ========================================================= */
 
 .site-header {
@@ -163,11 +151,29 @@ a:hover {
   color: var(--color-text);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
-  padding: 0.5rem 1rem;  /* liten, fast padding - INTE kopplad till loggans storlek */
-  overflow: visible;      /* tillåt loggan sticka utanför */
+
+  padding: 0.5rem 1rem;
+  overflow: visible;
+}
+
+.site-header-inner {
+  width: min(100% - 2rem, var(--max-width));
+  min-height: 64px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  position: relative;
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin: -2rem 0;
   color: var(--color-primary-dark);
 }
 
@@ -175,23 +181,42 @@ a:hover {
   color: var(--color-primary-dark);
 }
 
+.logo img {
+  height: clamp(90px, 30vw, 180px);
+  width: auto;
+  display: block;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .nav-link {
   position: relative;
+
   color: var(--color-text-muted);
   text-decoration: none;
+
   border-radius: var(--radius-md);
   padding: 0.5rem 0.9rem;
+
   transition: color 0.15s ease;
 }
 
 .nav-link::after {
   content: "";
+
   position: absolute;
   left: 0.9rem;
   right: 0.9rem;
   bottom: 0;
+
   height: 3px;
+
   background: var(--color-primary);
+
   transform: scaleX(0);
   transition: transform 0.15s ease;
 }
@@ -207,45 +232,40 @@ a:hover {
   transform: scaleX(1);
 }
 
-.site-header-inner {
-  width: min(100% - 2rem, var(--max-width));
-  min-height: 64px;
-  margin: 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;   
-  margin: -2rem 0;   /* drar in headerns höjd, loggan "flyter" ut ovan/under */
-
-}
-
-.logo img {
-  height: clamp(90px, 30vw, 180px);  
-  width: auto;
-  display: block;
-}
-
-.site-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-toggle{
+.nav-toggle {
   display: none;
 }
 
 
 /* =========================================================
-   KNAPPAR
+   6. GENERELLA KLICK / HOVER
+   ========================================================= */
+
+.clickable {
+  cursor: pointer;
+  position: relative;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.clickable:hover {
+  background-color: var(--color-primary-light);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 0 2px var(--color-primary),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+
+  border-radius: var(--radius-lg);
+}
+
+
+/* =========================================================
+   7. KNAPPAR
    ========================================================= */
 
 .btn {
@@ -295,12 +315,12 @@ a:hover {
 
 .btn-accent {
   background: var(--color-accent);
-  color: #17201b;
+  color: var(--color-text);
 }
 
 .btn-accent:hover {
   background: #e5b82f;
-  color: #17201b;
+  color: var(--color-text);
 }
 
 .btn-danger {
@@ -313,7 +333,7 @@ a:hover {
 
 
 /* =========================================================
-   KORT
+   8. KORT
    ========================================================= */
 
 .card {
@@ -321,21 +341,41 @@ a:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
+
   box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  margin-bottom: 1rem;
 }
 
 
 /* =========================================================
-   FORMULÄR
+   9. FORMULÄR
    ========================================================= */
 
 .form-group {
   margin-bottom: 1rem;
 }
 
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  margin-top: 1.25rem;
+}
+
 label {
   display: block;
+
   margin-bottom: 0.4rem;
+
   font-weight: 600;
 }
 
@@ -373,21 +413,20 @@ input[type="checkbox"] {
   margin-right: 0.5rem;
 }
 
+.question-input {
+  width: 20%;
+}
 
-/* =========================================================
-   FORM ACTIONS
-   ========================================================= */
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1.25rem;
+.question-input:disabled,
+.prediction-input:disabled {
+  cursor: not-allowed;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
 }
 
 
 /* =========================================================
-   FELMEDDELANDEN
+   10. FEL / SUCCESS
    ========================================================= */
 
 .error {
@@ -404,48 +443,135 @@ input[type="checkbox"] {
 
 
 /* =========================================================
-   LOGIN
+   11. LISTOR
    ========================================================= */
-.login-page {
-  min-height: 100vh;
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 0.8rem 1rem;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list li:last-child {
+  margin-bottom: 1rem;
+}
+
+.team-group-title {
+  list-style: none;
+
+  font-weight: 700;
+  font-size: 1.1rem;
+
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.team-group-title:first-child {
+  margin-top: 0;
+}
+
+.team-group-title ol {
+  margin-top: 0.25rem;
+}
+
+.team-search-result {
+  cursor: pointer;
+
+  padding: 0.6rem 0.8rem;
+
+  border-radius: var(--radius-sm);
+
+  transition: background-color 0.15s ease;
+}
+
+.team-search-result:hover {
+  background-color: #f0f0f0;
+}
+
+.team-search-result:active {
+  background-color: #e0e0e0;
+}
+
+
+/* =========================================================
+   12. LOGIN
+   ========================================================= */
+
+.login-page {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   padding: 2rem 8%;
   gap: 4rem;
 
-  background: 
-    radial-gradient(circle at center, rgba(46, 125, 50, 0.05) 0%, rgba(245, 247, 246, 0.8) 70%),
-    linear-gradient(135deg, #f4f7f5 0%, #e8f0ec 100%);
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(46, 125, 50, 0.05) 0%,
+      rgba(245, 247, 246, 0.8) 70%
+    ),
+    linear-gradient(
+      135deg,
+      #f4f7f5 0%,
+      #e8f0ec 100%
+    );
+
   background-color: #f4f7f5;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-  background: var(--color-surface, #ffffff);
-  border-radius: var(--radius-lg, 16px);
-  padding: 2.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(46, 125, 50, 0.15); 
-}
 
-.login-card input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+  background: var(--color-surface);
+
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(46, 125, 50, 0.15);
+
+  padding: 2.5rem;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .login-card input {
   width: 100%;
+
   padding: 0.75rem 1rem;
+
   border: 1px solid #cbd5e1;
   border-radius: 8px;
+
   margin-top: 0.3rem;
   margin-bottom: 1.2rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
+.login-card input:focus {
+  outline: none;
+
+  border-color: var(--color-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(46, 125, 50, 0.15);
+}
 
 .login-logo {
   text-align: center;
@@ -473,110 +599,16 @@ input[type="checkbox"] {
   width: min(600px, 100%);
 }
 
-.login-btn{
-  
+.login-btn {
 }
-.forgot-password{
+
+.forgot-password {
   margin-top: 1rem;
 }
 
 
-@media (max-width: 700px) {
-  .login-page {
-    min-height: 100vh;
-
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 2rem 1rem;
-    gap: 1rem;
-  }
-
-  .login-brand {
-    width: 100%;
-
-    display: flex;
-    justify-content: center;
-  }
-
-  .login-brand img {
-    width: min(280px, 75vw);
-    max-width: 100%;
-  }
-
-  .login-card {
-    width: 100%;
-    max-width: 420px;
-  }
-}
-
 /* =========================================================
-   SEKTIONER
-   ========================================================= */
-
-section {
-  margin-bottom: 2rem;
-}
-
-
-/* =========================================================
-   LISTOR
-   ========================================================= */
-
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.list li {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--color-border);
-
-  align-items: center;
-  gap: 1rem;
-}
-
-.list li:last-child {
-  margin-bottom: 1rem;
-}
-
-.team-group-title {
-  list-style: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-top: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.team-group-title:first-child {
-  margin-top: 0;
-}
-
-.team-group-title ol {
-  margin-top: 0.25rem;
-}
-
-.team-search-result {
-    cursor: pointer;
-    padding: 0.6rem 0.8rem;
-    border-radius: 6px;
-    transition: background-color 0.15s ease;
-}
-
-.team-search-result:hover {
-    background-color: #f0f0f0;
-}
-
-.team-search-result:active {
-    background-color: #e0e0e0;
-}
-
-/* =========================================================
-   MINA TIPS
+   13. MINA TIPS
    ========================================================= */
 
 .match-date-group {
@@ -590,10 +622,13 @@ section {
 .match-date-group .match-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
+
   align-items: center;
+
   gap: 1rem;
 
   padding: 0.8rem 1rem;
+
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -603,7 +638,9 @@ section {
 
 .match-time {
   width: 3.5rem;
+
   text-align: left;
+
   font-weight: 600;
   color: var(--color-text-muted);
 }
@@ -617,7 +654,9 @@ section {
 .prediction-input {
   width: 2.8rem;
   min-height: 2.5rem;
+
   padding: 0.3rem;
+
   text-align: center;
   font-weight: 600;
 }
@@ -636,7 +675,10 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+
   margin-left: 0.3rem;
+
+  color: var(--color-text-muted);
 }
 
 .prediction-lock svg {
@@ -644,55 +686,34 @@ section {
   height: 1.1rem;
 }
 
-.prediction-input:disabled {
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-}
-
-
-.card-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-
-}
-
 .no-matches-message {
-  color: var(--color-text-muted);
   text-align: center;
-  padding: 2rem 1rem;
+
+  color: var(--color-text-muted);
+
+  padding: 20px;
   margin: 0;
 }
 
-  .question-input{
-    width: 20%;
-  }
-
-  .question-input:disabled {
-  cursor: not-allowed;
-}
-
-.question-input:disabled {
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-}
 
 /* =========================================================
-   ADMIN
+   14. ADMIN
    ========================================================= */
 
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 1.5rem;
 }
 
 
-/* MATCHER */
+/* ---------------------------------------------------------
+   Admin – Matcher
+   --------------------------------------------------------- */
+
 .match-list {
   display: flex;
   flex-direction: column;
@@ -708,14 +729,18 @@ section {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
+
   padding: 10px 0;
 }
 
 .match-info {
   display: flex;
   align-items: center;
+
   gap: 8px;
+
   flex: 1;
   min-width: 0;
 }
@@ -727,7 +752,9 @@ section {
 .match-result {
   display: flex;
   align-items: center;
+
   gap: 6px;
+
   flex-shrink: 0;
 }
 
@@ -735,9 +762,10 @@ section {
   width: 45px;
   min-width: 45px;
   max-width: 45px;
+
   padding: 6px;
+
   text-align: center;
-  box-sizing: border-box;
 }
 
 .match-result .btn {
@@ -746,8 +774,1183 @@ section {
   margin-left: 6px;
 }
 
-/* Mobil */
-@media (max-width: 600px) {
+
+/* ---------------------------------------------------------
+   Admin – Frågor
+   --------------------------------------------------------- */
+
+.list .question-item {
+  display: grid;
+
+  grid-template-columns:
+    150px minmax(0, 1fr) auto;
+
+  align-items: center;
+
+  gap: 1rem;
+
+  padding: 1rem 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+
+/* ---------------------------------------------------------
+   Admin – Turneringar
+   --------------------------------------------------------- */
+
+#tournament-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#tournament-list .tournament-item {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    80px
+    120px
+    auto;
+
+  align-items: center;
+
+  column-gap: 1rem;
+
+  padding: 1rem 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tournament-name {
+  min-width: 0;
+}
+
+.tournament-status {
+  text-align: center;
+}
+
+.tournament-date {
+  white-space: nowrap;
+}
+
+#tournament-list .tournament-item .btn {
+  width: auto;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   15. HEM
+   ========================================================= */
+
+.home-overview {
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 0.7fr)
+    minmax(0, 1.3fr);
+
+  gap: 1.5rem;
+
+  margin-bottom: 2rem;
+}
+
+.home-score-card {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+
+  text-align: center;
+}
+
+.score-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+
+  gap: 0.5rem;
+
+  margin: 0.5rem 0 1rem;
+}
+
+.score-main span:first-child {
+  font-size: 4.5rem;
+  font-weight: 700;
+
+  color: var(--color-primary);
+}
+
+.score-position {
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.score-position strong {
+  color: var(--color-text);
+}
+
+.score-label {
+  color: var(--color-text-muted);
+}
+
+.home-upcoming-card {
+  min-width: 0;
+}
+
+.section-description {
+  margin: -0.5rem 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.95rem;
+}
+
+
+/* ---------------------------------------------------------
+   Hem – Kommande tips
+   --------------------------------------------------------- */
+
+#upcoming-tips-list li,
+#next-tips-list li {
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.upcoming-time {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.upcoming-match {
+  min-width: 0;
+}
+
+.upcoming-prediction {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   Hem – Dagens matcher
+   --------------------------------------------------------- */
+
+.today-match {
+  padding: 1rem 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.today-match:last-child {
+  border-bottom: none;
+}
+
+.today-match-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 1rem;
+
+  margin-bottom: 1rem;
+}
+
+.today-match-time {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   Hem – Ditt tips
+   --------------------------------------------------------- */
+
+.your-prediction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 0.75rem 1rem;
+
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+
+  margin-bottom: 1rem;
+}
+
+.your-prediction-label {
+  color: var(--color-text-muted);
+}
+
+.your-prediction-value {
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Hem – Andras tips
+   --------------------------------------------------------- */
+
+.prediction-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.prediction-distribution-row {
+  display: grid;
+
+  grid-template-columns:
+    50px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 0.75rem;
+}
+
+.prediction-score {
+  font-weight: 600;
+}
+
+.prediction-bar {
+  height: 10px;
+
+  background: var(--color-primary-light);
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+.prediction-bar-fill {
+  height: 100%;
+
+  background: var(--color-primary);
+
+  border-radius: inherit;
+}
+
+.prediction-count {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   16. DAGENS MATCHER / PREDICTION GRID
+   ========================================================= */
+
+.todays-matches-card {
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.table-scroll-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.matches-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(180px, 2fr)
+    repeat(
+      var(--user-count),
+      minmax(80px, 1fr)
+    );
+
+  gap: 12px 16px;
+
+  align-items: center;
+
+  min-width: 550px;
+}
+
+
+/* ---------------------------------------------------------
+   Prediction grid – Header
+   --------------------------------------------------------- */
+
+.header-title,
+.header-name {
+  font-family: var(--font-family-display);
+
+  font-weight: 600;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.85rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  padding-bottom: 10px;
+
+  border-bottom: 2px solid var(--color-border);
+}
+
+.header-name,
+.today-prediction {
+  text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   Prediction grid – Matchinfo
+   --------------------------------------------------------- */
+
+.today-match-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  padding: 4px 0;
+}
+
+
+/* ---------------------------------------------------------
+   Prediction grid – Celler
+   --------------------------------------------------------- */
+
+.today-prediction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 10px;
+
+  background: var(--color-bg);
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  box-sizing: border-box;
+
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.my-prediction {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+
+  border-color: var(--color-border);
+}
+
+
+/* ---------------------------------------------------------
+   Prediction result
+   --------------------------------------------------------- */
+
+.prediction-exact {
+  background: var(--color-primary);
+
+  color: white;
+
+  border-color: var(--color-primary);
+}
+
+.prediction-winner {
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-dark);
+
+  border-color: var(--color-primary);
+}
+
+.prediction-wrong {
+  background: #fdeaea;
+
+  color: var(--color-danger);
+
+  border-color: #f1b5b5;
+}
+
+
+/* =========================================================
+   17. STÄLLNING
+   ========================================================= */
+
+.standings-list {
+  list-style: none;
+
+  padding: 0;
+  margin: 0;
+}
+
+.standings-item {
+  display: grid;
+
+  grid-template-columns:
+    40px
+    1fr
+    auto;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 12px 14px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.standings-item:last-child {
+  border-bottom: none;
+}
+
+.standings-position {
+  font-weight: 700;
+  text-align: center;
+}
+
+.standings-username {
+  font-weight: 700;
+}
+
+.standings-points {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.standings-item.current-user {
+  background: var(--color-primary-light);
+  border-radius: 8px;
+}
+
+
+/* =========================================================
+   18. POÄNGGRAF
+   ========================================================= */
+
+.chart-container {
+  position: relative;
+
+  width: 100%;
+  height: 350px;
+
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+
+/* =========================================================
+   19. ALLA TIPS
+   ========================================================= */
+
+.all-preds-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.all-preds-list-container {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 600px;
+
+  padding-bottom: 20px;
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Grid
+   --------------------------------------------------------- */
+
+.all-preds-row {
+  display: grid;
+
+  grid-template-columns:
+    180px
+    repeat(
+      var(--user-count),
+      minmax(80px, 1fr)
+    );
+
+  gap: 16px;
+
+  align-items: center;
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Header
+   --------------------------------------------------------- */
+
+.all-preds-header-row {
+  margin-bottom: 10px;
+}
+
+.all-preds-header-name {
+  font-family: var(--font-family-display);
+
+  font-weight: 600;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.85rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  padding-bottom: 10px;
+
+  border-bottom: 2px solid var(--color-border);
+
+  text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Datum
+   --------------------------------------------------------- */
+
+.all-preds-date {
+  width: 100%;
+
+  margin-top: 24px;
+  margin-bottom: 12px;
+
+  padding-bottom: 8px;
+
+  font-size: 1.1rem;
+
+  border-bottom: 2px solid var(--color-border);
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Matchinfo
+   --------------------------------------------------------- */
+
+.all-preds-match-item {
+  padding: 12px 0;
+}
+
+.all-preds-match-item:last-child {
+  border-bottom: none;
+}
+
+.all-preds-match-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 3px;
+}
+
+.all-preds-teams {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.all-preds-time {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.all-preds-result {
+  font-size: 1rem;
+
+  font-weight: 600;
+
+  color: var(--color-text-muted);
+
+  opacity: 0.7;
+
+  line-height: 1.2;
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Celler
+   --------------------------------------------------------- */
+
+.all-preds-cell {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+
+  min-height: 52px;
+
+  padding: 8px 10px;
+
+  background: var(--color-bg);
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+
+  box-sizing: border-box;
+
+  color: var(--color-text);
+
+  font-weight: 600;
+
+  text-align: center;
+}
+
+.all-preds-score {
+  font-size: 0.95rem;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+}
+
+.all-preds-points {
+  font-size: 0.7rem;
+
+  font-weight: 500;
+
+  line-height: 1;
+
+  opacity: 0.75;
+}
+
+.all-preds-cell-locked {
+  color: var(--color-text-muted);
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Resultat
+   --------------------------------------------------------- */
+
+.all-preds-exact {
+  background: var(--color-primary);
+
+  color: white;
+
+  border-color: var(--color-primary);
+}
+
+.all-preds-winner {
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-dark);
+
+  border-color: var(--color-primary);
+}
+
+.all-preds-wrong {
+  background: #fdeaea;
+
+  color: var(--color-danger);
+
+  border-color: #f1b5b5;
+}
+
+.all-preds-no-matches {
+  text-align: center;
+
+  color: var(--color-text-muted);
+
+  padding: 20px;
+  margin: 0;
+}
+
+
+/* ---------------------------------------------------------
+   Alla tips – Klickbara celler
+   --------------------------------------------------------- */
+
+.all-preds-cell-clickable {
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.all-preds-cell-clickable:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   20. PREDICTION MODAL
+   ========================================================= */
+
+.prediction-modal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.prediction-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Bakgrund
+   --------------------------------------------------------- */
+
+.prediction-modal-backdrop {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  /*
+    OBS:
+    Ingen backdrop-filter här.
+    Det gör att resten av sidan inte blir suddig.
+  */
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Content
+   --------------------------------------------------------- */
+
+.prediction-modal-content {
+  position: relative;
+  z-index: 1;
+
+  width: min(420px, 100%);
+
+  box-sizing: border-box;
+
+  padding: 28px;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.18);
+
+  transform: translateY(8px);
+
+  transition:
+    transform 0.2s ease;
+}
+
+.prediction-modal.is-open .prediction-modal-content {
+  transform: translateY(0);
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Stäng
+   --------------------------------------------------------- */
+
+.prediction-modal-close {
+  position: absolute;
+
+  top: 12px;
+  right: 12px;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--color-bg);
+
+  color: var(--color-text-muted);
+
+  font-size: 24px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.prediction-modal-close:hover {
+  background: var(--color-primary-light);
+
+  color: var(--color-primary-dark);
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Match
+   --------------------------------------------------------- */
+
+.prediction-modal-match {
+  text-align: center;
+
+  margin-bottom: 24px;
+
+  padding-right: 25px;
+}
+
+.prediction-modal-teams {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Resultat / tips
+   --------------------------------------------------------- */
+
+.prediction-modal-result-label,
+.prediction-modal-tip-label {
+  margin-top: 18px;
+  margin-bottom: 6px;
+
+  text-align: center;
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+
+  color: var(--color-text-muted);
+}
+
+.prediction-modal-result,
+.prediction-modal-tip {
+  text-align: center;
+
+  font-size: 1.7rem;
+
+  font-weight: 800;
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Poäng
+   --------------------------------------------------------- */
+
+.prediction-modal-points {
+  margin-top: 24px;
+
+  padding: 16px;
+
+  border-radius: var(--radius-sm);
+
+  text-align: center;
+
+  border: 1px solid transparent;
+}
+
+.prediction-modal-points-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Poängfärger
+   --------------------------------------------------------- */
+
+/* Exakt resultat */
+.prediction-points-exact {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.prediction-points-exact
+.prediction-modal-points-value {
+  color: white;
+}
+
+
+/* Rätt målskillnad / vinnare */
+.prediction-points-correct {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.prediction-points-correct
+.prediction-modal-points-value {
+  color: var(--color-primary-dark);
+}
+
+
+/* Fel */
+.prediction-points-wrong {
+  background: #fdeaea;
+  border-color: #f1b5b5;
+}
+
+.prediction-points-wrong
+.prediction-modal-points-value {
+  color: var(--color-danger);
+}
+
+
+/* ---------------------------------------------------------
+   Modal – Förklaring
+   --------------------------------------------------------- */
+
+.prediction-modal-explanation {
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--color-border);
+
+  text-align: center;
+}
+
+.prediction-modal-explanation-title {
+  margin-bottom: 8px;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.prediction-modal-explanation-text {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   21. TOAST
+   ========================================================= */
+
+.toast {
+  position: fixed;
+
+  top: 1.5rem;
+  left: 50%;
+
+  z-index: 1000;
+
+  transform:
+    translateX(-50%)
+    translateY(-150%);
+
+  padding: 0.85rem 1.25rem;
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  border: 1px solid var(--color-border);
+
+  box-shadow: var(--shadow-md);
+
+  font-weight: 600;
+
+  opacity: 0;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
+  pointer-events: none;
+}
+
+.toast.show {
+  transform:
+    translateX(-50%)
+    translateY(0);
+
+  opacity: 1;
+}
+
+.toast.success {
+  background: var(--color-success);
+
+  color: white;
+
+  border-color: var(--color-success);
+}
+
+.toast.error {
+  background: var(--color-danger);
+
+  color: white;
+
+  border-color: var(--color-danger);
+}
+
+
+/* =========================================================
+   22. RESPONSIVE – TABLET / MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  /* Typography */
+  h1 {
+    font-size: 1.7rem;
+  }
+
+
+  /* Layout */
+  .page {
+    width: min(100% - 1rem, var(--max-width));
+    padding: 1rem 0;
+  }
+
+
+  /* Header */
+  .site-header-inner {
+    min-height: 56px;
+  }
+
+  .nav-toggle {
+    display: block;
+
+    background: none;
+    border: none;
+
+    font-size: 1.5rem;
+
+    cursor: pointer;
+
+    color: var(--color-primary-dark);
+  }
+
+  .site-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    position: absolute;
+
+    top: 100%;
+    right: 1rem;
+
+    width: min(240px, 80vw);
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    padding: 0.75rem;
+
+    box-shadow: var(--shadow-md);
+
+    z-index: 100;
+
+    opacity: 0;
+
+    transform: translateY(-10px);
+
+    pointer-events: none;
+    visibility: hidden;
+
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .site-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .site-nav.open {
+    opacity: 1;
+
+    transform: translateY(0);
+
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+
+  /* Cards */
+  .card {
+    padding: 1.1rem;
+  }
+
+
+  /* Admin */
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* Home */
+  .home-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .today-match-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 0.25rem;
+  }
+
+  .prediction-distribution-row {
+    grid-template-columns:
+      45px
+      minmax(0, 1fr)
+      auto;
+
+    gap: 0.5rem;
+  }
+
+
+  /* Admin matcher */
   .match-item {
     align-items: flex-start;
     gap: 10px;
@@ -770,679 +1973,49 @@ section {
   .match-result .btn {
     padding: 6px 10px;
   }
-}
 
 
+  /* Login */
+  .login-page {
+    min-height: 100vh;
 
-.list .question-item {
-    display: grid;
-    grid-template-columns: 150px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border, #ddd);
-}
-
-
-#tournament-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#tournament-list .tournament-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 80px 120px auto;
-  align-items: center;
-  column-gap: 1rem;
-
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.tournament-name {
-  min-width: 0;
-}
-
-.tournament-status {
-  text-align: center;
-}
-
-.tournament-date {
-  white-space: nowrap;
-}
-
-#tournament-list .tournament-item .btn {
-  width: auto;
-  white-space: nowrap;
-}
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 700px) {
-  h1 {
-    font-size: 1.7rem;
-  }
-
-  .page {
-    width: min(100% - 1rem, var(--max-width));
-    padding: 1rem 0;
-  }
-
-  .site-header-inner {
-    min-height: 56px;
-    position: relative; /* Viktigt för att menyn ska positioneras efter headern */
-  }
-
-  .admin-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    padding: 1.1rem;
-  }
-
-  .nav-toggle {
-    display: block;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--color-primary-dark);
-  }
-
-  .site-nav {
-    display: flex;
     flex-direction: column;
-    align-items: stretch; /* Fyller ut bredden för länkarna */
-    position: absolute;
-    top: 100%; /* Placeras direkt under headern */
-    right: 1rem;
-    width: min(240px, 80vw); /* Snygg fast bredd som inte smälter ihop */
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    padding: 0.75rem;
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-md); /* Använder ditt designsystems radie */
-    z-index: 100; /* Ser till att menyn ligger över annat innehåll */
 
-    opacity: 0;
-    transform: translateY(-10px);
-    pointer-events: none;
-    visibility: hidden;
-
-    transition:
-      opacity 0.25s ease,
-      transform 0.25s ease,
-      visibility 0.25s ease;
-  }
-
-  /* Gör länkarna lite enklare att klicka på i mobilen */
-  .site-nav .nav-link {
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .site-nav.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    visibility: visible;
-  }
-}
-
-[hidden] {
-  display: none !important;
-}
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-
-.toast {
-  position: fixed;
-  top: 1.5rem;
-  left: 50%;
-
-  transform: translateX(-50%) translateY(-150%);
-
-  padding: 0.85rem 1.25rem;
-  border-radius: var(--radius-md);
-
-  background: var(--color-surface);
-  color: var(--color-text);
-
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-
-  font-weight: 600;
-
-  z-index: 1000;
-
-  opacity: 0;
-  transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
-
-  pointer-events: none;
-}
-
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-.toast.success {
-  background: var(--color-success);
-  color: white;
-  border-color: var(--color-success);
-}
-
-.toast.error {
-  background: var(--color-danger);
-  color: white;
-  border-color: var(--color-danger);
-}
-
-
-/* =========================================================
-   HEM
-   ========================================================= */
-
-.home-overview {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.home-score-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.score-main {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.5rem;
-
-  margin: 0.5rem 0 1rem;
-}
-
-.score-main span:first-child {
-  font-size: 4.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
-}
-.score-position{
-  font-size: 1.5rem;
-}
-
-.score-label {
-  color: var(--color-text-muted);
-}
-
-.score-position {
-  color: var(--color-text-muted);
-}
-
-.score-position strong {
-  color: var(--color-text);
-}
-
-
-.home-upcoming-card {
-  min-width: 0;
-}
-
-.section-description {
-  margin: -0.5rem 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-}
-
-
-/* Kommande tips */
-
-#upcoming-tips-list li,
-#next-tips-list li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-}
-
-.upcoming-time {
-  color: var(--color-text-muted);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.upcoming-match {
-  min-width: 0;
-}
-
-.upcoming-prediction {
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-
-/* Dagens matcher */
-
-.today-match {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.today-match:last-child {
-  border-bottom: none;
-}
-
-.today-match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.today-match-time {
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-
-/* Ditt tips */
-
-.your-prediction {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  padding: 0.75rem 1rem;
-
-  background: var(--color-primary-light);
-  border-radius: var(--radius-md);
-
-  margin-bottom: 1rem;
-}
-
-.your-prediction-label {
-  color: var(--color-text-muted);
-}
-
-.your-prediction-value {
-  font-weight: 700;
-}
-
-
-/* Andras tips */
-
-.prediction-distribution {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.prediction-distribution-row {
-  display: grid;
-  grid-template-columns: 50px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.prediction-score {
-  font-weight: 600;
-}
-
-.prediction-bar {
-  height: 10px;
-  background: var(--color-primary-light);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.prediction-bar-fill {
-  height: 100%;
-  background: var(--color-primary);
-  border-radius: inherit;
-}
-
-.prediction-count {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-  .home-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .today-match-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .prediction-distribution-row {
-    grid-template-columns: 45px minmax(0, 1fr) auto;
-    gap: 0.5rem;
-  }
-}
-
-
-/* =========================================================
-   DAGENS MATCHER
-   ========================================================= */
-
-.todays-matches-card {
-    padding: 1.5rem;
-    overflow: hidden; /* Förhindrar att något läcker utanför de rundade hörnen */
-}
-
-.table-scroll-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Prediction grid */
-.matches-grid {
-    display: grid;
-    grid-template-columns: minmax(180px, 2fr) repeat(var(--user-count), minmax(80px, 1fr));
-    gap: 12px 16px;
-    align-items: center;
-    min-width: 550px;
-}
-
-/* Header */
-.header-title,
-.header-name {
-    font-family: var(--font-family-display);
-    font-weight: 600;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-border);
-}
-
-.header-name,
-.today-prediction {
-    text-align: center;
-}
-
-/* Matchinformation */
-.today-match-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 4px 0;
-}
-
-.today-match-time {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    font-weight: 500;
-}
-
-
-/* Tips-celler */
-.today-prediction {
-    background: var(--color-bg);
-    padding: 10px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
     justify-content: center;
-    min-height: 42px;
-    border: 1px solid transparent;
-    box-sizing: border-box;
-}
-
-.my-prediction {
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    border-color: var(--color-border);
-}
-
-.prediction-lock {
-    color: var(--color-text-muted);
-}
-
-/* Scroll */
-.table-scroll-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Inga matcher */
-.no-matches-message {
-    text-align: center;
-    color: var(--color-text-muted);
-    padding: 20px;
-    margin: 0;
-}
-
-/* Prediction result */
-.prediction-exact {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.prediction-winner {
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    border-color: var(--color-primary);
-}
-
-.prediction-wrong {
-    background: #fdeaea;
-    color: var(--color-danger);
-    border-color: #f1b5b5;
-}
-
-/* Standings */
-.standings-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.standings-item {
-    display: grid;
-    grid-template-columns: 40px 1fr auto;
     align-items: center;
-    gap: 8px;
-    padding: 12px 14px;
-    border-bottom: 1px solid #eee;
-}
 
-.standings-item:last-child {
-    border-bottom: none;
-}
+    padding: 2rem 1rem;
 
-.standings-position {
-    font-weight: 700;
-    text-align: center;
-}
+    gap: 1rem;
+  }
 
-.standings-username {
-    font-weight: 700;
-}
-
-.standings-points {
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.standings-item.current-user {
-    background: var(--color-primary-light);
-    border-radius: 8px;
-}
-
-/* Chart */
-.chart-container {
-    position: relative;
+  .login-brand {
     width: 100%;
-    height: 350px;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    box-sizing: border-box;
+
+    display: flex;
+
+    justify-content: center;
+  }
+
+  .login-brand img {
+    width: min(280px, 75vw);
+    max-width: 100%;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+  }
 }
+
+
+/* =========================================================
+   23. RESPONSIVE – SMALL MOBILE
+   ========================================================= */
 
 @media (max-width: 600px) {
-    .chart-container {
-        height: 280px;
-    }
+
+  .chart-container {
+    height: 280px;
+  }
 }
-
-
-/* =========================================================
-   ALLA TIPS - ISOLERAD STYLING
-   ========================================================= */
-
-.all-preds-scroll {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.all-preds-list-container {
-    display: flex;
-    flex-direction: column;
-    min-width: 600px;
-    padding-bottom: 20px;
-}
-
-/* --- GRID LAYOUT --- */
-.all-preds-row {
-    display: grid;
-    grid-template-columns: 180px repeat(var(--user-count), minmax(80px, 1fr));
-    gap: 16px;
-    align-items: center;
-}
-
-/* --- HEADERS --- */
-.all-preds-header-row {
-    margin-bottom: 10px;
-}
-
-.all-preds-header-name {
-    font-family: var(--font-family-display);
-    font-weight: 600;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-border);
-    text-align: center;
-}
-
-.all-preds-date {
-    width: 100%;
-    margin-top: 24px;
-    margin-bottom: 12px;
-    font-size: 1.1rem;
-    border-bottom: 2px solid var(--color-border);
-    padding-bottom: 8px;
-}
-
-/* --- MATCHINFO --- */
-.all-preds-match-item {
-    padding: 12px 0;
-}
-
-.all-preds-match-item:last-child {
-    border-bottom: none;
-}
-
-.all-preds-match-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.all-preds-teams {
-    font-weight: 600;
-    color: var(--color-text);
-}
-
-.all-preds-time {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-}
-
-/* --- TIPS-CELLER (Rundade boxar) --- */
-.all-preds-cell {
-    background: var(--color-bg);
-    padding: 10px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 42px;
-    border: 1px solid transparent;
-    box-sizing: border-box;
-    text-align: center;
-}
-
-.all-preds-cell-my {
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    border-color: var(--color-border);
-}
-
-.all-preds-cell-locked {
-    color: var(--color-text-muted);
-}
-
-/* --- TIPS-RESULTAT (Färger efter matchen) --- */
-.all-preds-exact {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.all-preds-winner {
-    background: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    border-color: var(--color-primary);
-}
-
-.all-preds-wrong {
-    background: #fdeaea;
-    color: var(--color-danger);
-    border-color: #f1b5b5;
-}
-
-/* --- INGA MATCHER --- */
-.all-preds-no-matches {
-    text-align: center;
-    color: var(--color-text-muted);
-    padding: 20px;
-    margin: 0;
-}
-

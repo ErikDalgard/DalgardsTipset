@@ -226,8 +226,17 @@ function renderAllPredictions() {
             minute: "2-digit"
         });
 
+        const resultExists = match.result_home_score !== null && match.result_away_score !== null;
         matchInfo.appendChild(teams);
-        matchInfo.appendChild(time);
+
+        if (resultExists) {
+            const result = document.createElement("div");
+            result.className = "all-preds-result";
+            result.textContent = `${match.result_home_score} – ${match.result_away_score}`;
+
+            matchInfo.appendChild(result);
+        }
+
         matchRow.appendChild(matchInfo);
 
         // =========================
@@ -243,14 +252,43 @@ function renderAllPredictions() {
             // DITT TIPS
             if (user.id === myUserId) {
                 cell.classList.add("all-preds-cell-my");
+
                 if (!prediction || prediction.home_score === null) {
                     cell.textContent = "–";
                 } else {
                     const h = Number(prediction.home_score);
                     const a = Number(prediction.away_score);
-                    cell.textContent = `${h} – ${a}`;
+
+                    // Själva tipset
+                    const score = document.createElement("div");
+                    score.className = "all-preds-score";
+                    score.textContent = `${h} – ${a}`;
+
+                    cell.appendChild(score);
+
+                    // Poäng, om matchresultat finns
+                    if (prediction.points !== null) {
+                        const points = document.createElement("div");
+                        points.className = "all-preds-points";
+
+                        const p = Number(prediction.points);
+                        points.textContent = `${p > 0 ? "+" : ""}${p} p`;
+
+                        cell.appendChild(points);
+                    }
+
                     setIsolatedPredictionResultClass(cell, h, a, match);
+                    if ( match.result_home_score !== null &&
+                        match.result_away_score !== null
+                    ) {
+                        cell.classList.add("all-preds-cell-clickable");
+
+                        cell.addEventListener("click", () => {
+                            openPredictionModal(prediction, match);
+                        });
+                    }
                 }
+
                 matchRow.appendChild(cell);
                 return;
             }
@@ -278,9 +316,34 @@ function renderAllPredictions() {
 
             const h = Number(prediction.home_score);
             const a = Number(prediction.away_score);
-            cell.textContent = `${h} – ${a}`;
+
+            const score = document.createElement("div");
+            score.className = "all-preds-score";
+            score.textContent = `${h} – ${a}`;
+
+            cell.appendChild(score);
+
+            if (prediction.points !== null) {
+                const points = document.createElement("div");
+                points.className = "all-preds-points";
+
+                const p = Number(prediction.points);
+                points.textContent = `${p > 0 ? "+" : ""}${p} p`;
+
+                cell.appendChild(points);
+            }
+
             setIsolatedPredictionResultClass(cell, h, a, match);
             matchRow.appendChild(cell);
+            if (match.result_home_score !== null &&
+                match.result_away_score !== null
+            ) {
+                cell.classList.add("all-preds-cell-clickable");
+
+                cell.addEventListener("click", () => {
+                    openPredictionModal(prediction, match);
+                });
+            }
         });
 
         list.appendChild(matchRow);
@@ -341,6 +404,119 @@ function addPredictionResultClass(cell, predictionHome, predictionAway, match) {
 
     // Fel vinnare
     cell.classList.add("prediction-wrong");
+}
+
+
+
+function openPredictionModal(prediction, match) {
+    const modal = document.getElementById("prediction-modal");
+    const body = document.getElementById("prediction-modal-body");
+
+    const resultHome = Number(match.result_home_score);
+    const resultAway = Number(match.result_away_score);
+
+    const predictionHome = Number(prediction.home_score);
+    const predictionAway = Number(prediction.away_score);
+
+    const points = Number(prediction.points);
+
+    let explanation = "";
+
+    const predictionOutcome = getMatchOutcome(
+        predictionHome,
+        predictionAway
+    );
+
+    const resultOutcome = getMatchOutcome(
+        resultHome,
+        resultAway
+    );
+
+    const predictionDiff = predictionHome - predictionAway;
+    const resultDiff = resultHome - resultAway;
+
+    if (
+        predictionHome === resultHome &&
+        predictionAway === resultAway
+    ) {
+        explanation = `${prediction.username} tippade exakt rätt resultat.`;
+    } else if (predictionDiff === resultDiff) {
+        explanation = `${prediction.username} tippade rätt målskillnad.`;
+    } else if (predictionOutcome === resultOutcome) {
+        explanation = `${prediction.username} tippade rätt vinnare.`;
+    } else {
+        explanation = `${prediction.username}s tips hade fel matchutfall.`;
+    }
+
+    body.innerHTML = `
+        <div class="prediction-modal-match">
+            <div class="prediction-modal-teams">
+                ${match.home_team} – ${match.away_team}
+            </div>
+        </div>
+
+        <div class="prediction-modal-result-label">
+            Resultat
+        </div>
+
+        <div class="prediction-modal-result">
+            ${resultHome} – ${resultAway}
+        </div>
+
+        <div class="prediction-modal-tip-label">
+            ${prediction.username === "Erik" ? "Ditt tips" : `${prediction.username}s tips`}
+        </div>
+
+        <div class="prediction-modal-tip">
+            ${predictionHome} – ${predictionAway}
+        </div>
+
+        <div class="prediction-modal-points ${getPointsClass(points)}">
+            <div class="prediction-modal-points-value">
+                ${points > 0 ? "+" : ""}${points} p
+            </div>
+        </div>
+
+        <div class="prediction-modal-explanation">
+            <div class="prediction-modal-explanation-title">
+                Så räknades poängen
+            </div>
+
+            <p class="prediction-modal-explanation-text">
+                ${explanation}
+            </p>
+        </div>
+    `;
+
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+}
+
+function closePredictionModal() {
+    const modal = document.getElementById("prediction-modal");
+
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+}
+
+document
+    .getElementById("prediction-modal-close")
+    .addEventListener("click", closePredictionModal);
+
+document
+    .querySelector(".prediction-modal-backdrop")
+    .addEventListener("click", closePredictionModal);
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closePredictionModal();
+    }
+});
+
+function getPointsClass(points) {
+    if (points >= 3) return "prediction-points-exact";
+    if (points > 0) return "prediction-points-correct";
+    return "prediction-points-wrong";
 }
 
 loadAllPredictions();
