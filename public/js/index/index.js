@@ -91,7 +91,7 @@ function renderTodaysMatches() {
     // HEADER
     // =================================================
     const matchHeader = document.createElement("div");
-    matchHeader.className = "today-match-info header-title";
+    matchHeader.className = "header-title";
     matchHeader.textContent = "Match";
     gridContainer.appendChild(matchHeader);
 
@@ -114,22 +114,44 @@ function renderTodaysMatches() {
         const isLocked = new Date() < new Date(match.deadline_at);
 
         // Match Info
-        const matchInfo = document.createElement("div");
-        matchInfo.className = "today-match-info";
+        const matchInfo=document.createElement("div");
+        matchInfo.className="today-match-info";
 
-        const date = new Date(match.kickoff_at);
-        const time = document.createElement("span");
-        time.className = "today-match-time";
-        time.textContent = date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+        const date=new Date(match.kickoff_at);
 
-        const teams = document.createElement("span");
-        teams.className = "today-match-teams";
-        teams.textContent = `${match.home_team} – ${match.away_team}`;
+        const time=document.createElement("div");
+        time.className="today-match-time";
+        time.textContent=date.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+
+        const teams=document.createElement("div");
+        teams.className="today-match-teams";
+
+        const homeTeam=document.createElement("div");
+        homeTeam.textContent=match.home_team;
+
+        const awayTeam=document.createElement("div");
+        awayTeam.textContent=match.away_team;
+
+        teams.appendChild(homeTeam);
+        teams.appendChild(awayTeam);
+
+        const result=document.createElement("div");
+        result.className="today-match-result";
+
+        const resultHome=document.createElement("div");
+        resultHome.textContent=match.result_home_score??"–";
+
+        const resultAway=document.createElement("div");
+        resultAway.textContent=match.result_away_score??"–";
+
+        result.appendChild(resultHome);
+        result.appendChild(resultAway);
 
         matchInfo.appendChild(time);
         matchInfo.appendChild(teams);
-        gridContainer.appendChild(matchInfo);
+        matchInfo.appendChild(result);
 
+        gridContainer.appendChild(matchInfo);
         // =================================================
         // TIPS (Loopar alla användare på samma sätt)
         // =================================================
@@ -152,14 +174,37 @@ function renderTodaysMatches() {
                 // Hämta tipset (antingen ditt eget som alltid visas, eller andras efter deadline)
                 const prediction = matchPredictions.find(p => p.user_id === user.id);
                 
-                if (prediction && prediction.home_score !== null && prediction.away_score !== null) {
-                    const h = Number(prediction.home_score);
-                    const a = Number(prediction.away_score);
-                    
-                    cell.textContent = `${h} – ${a}`;
-                    addPredictionResultClass(cell, h, a, match);
-                } else {
-                    cell.textContent = "–";
+                if(prediction&&prediction.home_score!==null&&prediction.away_score!==null){
+                    const h=Number(prediction.home_score);
+                    const a=Number(prediction.away_score);
+
+                    const score=document.createElement("div");
+                    score.className="today-prediction-score";
+
+                    const home=document.createElement("div");
+                    home.textContent=h;
+
+                    const away=document.createElement("div");
+                    away.textContent=a;
+
+                    score.appendChild(home);
+                    score.appendChild(away);
+                    cell.appendChild(score);
+
+                    if(prediction.points!==null&&prediction.points!==undefined){
+                        const p=Number(prediction.points);
+
+                        if(!Number.isNaN(p)){
+                            const points=document.createElement("div");
+                            points.className="today-prediction-points";
+                            points.textContent=`${p>0?"+":""}${p} p`;
+                            cell.appendChild(points);
+                        }
+                    }
+
+                    addPredictionResultClass(cell,h,a,match);
+                }else{
+                    cell.textContent="–";
                 }
             }
 
@@ -282,25 +327,31 @@ function getMatchOutcome(home, away) {
     return "draw";
 }
 
-function addPredictionResultClass(cell, predictionHome, predictionAway, match) {
-    const resultExists = match.result_home_score !== null && match.result_away_score !== null;
-    if (!resultExists) return;
+function addPredictionResultClass(cell,predictionHome,predictionAway,match){
+    const resultExists=match.result_home_score!==null&&match.result_away_score!==null;
+    if(!resultExists)return;
 
-    const resultHome = Number(match.result_home_score);
-    const resultAway = Number(match.result_away_score);
+    const resultHome=Number(match.result_home_score);
+    const resultAway=Number(match.result_away_score);
 
-    // Exakt resultat
-    if (predictionHome === resultHome && predictionAway === resultAway) {
-        cell.classList.add("prediction-exact");
-        return;
+    let points=0;
+    let className="prediction-wrong";
+
+    if(predictionHome===resultHome&&predictionAway===resultAway){
+        points=3;
+        className="prediction-exact";
+    }else if(predictionHome-predictionAway===resultHome-resultAway){
+        points=2;
+        className="prediction-goaldiff";
+    }else if(getMatchOutcome(predictionHome,predictionAway)===getMatchOutcome(resultHome,resultAway)){
+        points=1;
+        className="prediction-winner";
     }
 
-    // Rätt vinnare / oavgjort
-    if (getMatchOutcome(predictionHome, predictionAway) === getMatchOutcome(resultHome, resultAway)) {
-        cell.classList.add("prediction-winner");
-        return;
-    }
+    cell.classList.add(className);
 
-    // Fel vinnare
-    cell.classList.add("prediction-wrong");
+    const pointsElement=document.createElement("span");
+    pointsElement.className="prediction-points";
+    pointsElement.textContent=`+${points}`;
+    cell.appendChild(pointsElement);
 }

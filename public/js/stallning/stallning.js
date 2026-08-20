@@ -212,30 +212,35 @@ function renderAllPredictions() {
         matchRow.className = "all-preds-row all-preds-match-item";
 
         // MATCHINFO
-        const matchInfo = document.createElement("div");
-        matchInfo.className = "all-preds-match-info";
+        const matchInfo=document.createElement("div");
+        matchInfo.className="all-preds-match-info";
 
-        const teams = document.createElement("div");
-        teams.className = "all-preds-teams";
-        teams.textContent = `${match.home_team} - ${match.away_team}`;
+        const teams=document.createElement("div");
+        teams.className="all-preds-teams";
 
-        const time = document.createElement("div");
-        time.className = "all-preds-time";
-        time.textContent = date.toLocaleTimeString("sv-SE", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+        const homeTeam=document.createElement("div");
+        homeTeam.textContent=match.home_team;
 
-        const resultExists = match.result_home_score !== null && match.result_away_score !== null;
+        const awayTeam=document.createElement("div");
+        awayTeam.textContent=match.away_team;
+
+        teams.appendChild(homeTeam);
+        teams.appendChild(awayTeam);
+
+        const result=document.createElement("div");
+        result.className="all-preds-result";
+
+        const resultHome=document.createElement("div");
+        resultHome.textContent=match.result_home_score??"–";
+
+        const resultAway=document.createElement("div");
+        resultAway.textContent=match.result_away_score??"–";
+
+        result.appendChild(resultHome);
+        result.appendChild(resultAway);
+
         matchInfo.appendChild(teams);
-
-        if (resultExists) {
-            const result = document.createElement("div");
-            result.className = "all-preds-result";
-            result.textContent = `${match.result_home_score} – ${match.result_away_score}`;
-
-            matchInfo.appendChild(result);
-        }
+        matchInfo.appendChild(result);
 
         matchRow.appendChild(matchInfo);
 
@@ -260,21 +265,28 @@ function renderAllPredictions() {
                     const a = Number(prediction.away_score);
 
                     // Själva tipset
-                    const score = document.createElement("div");
-                    score.className = "all-preds-score";
-                    score.textContent = `${h} – ${a}`;
+                    const score=document.createElement("div");
+                    score.className="all-preds-score";
 
+                    const home=document.createElement("div");
+                    home.textContent=h;
+
+                    const away=document.createElement("div");
+                    away.textContent=a;
+
+                    score.appendChild(home);
+                    score.appendChild(away);
                     cell.appendChild(score);
 
-                    // Poäng, om matchresultat finns
-                    if (prediction.points !== null) {
-                        const points = document.createElement("div");
-                        points.className = "all-preds-points";
+                    if(prediction.points!==null&&prediction.points!==undefined){
+                        const p=Number(prediction.points);
 
-                        const p = Number(prediction.points);
-                        points.textContent = `${p > 0 ? "+" : ""}${p} p`;
-
-                        cell.appendChild(points);
+                        if(!Number.isNaN(p)){
+                            const points=document.createElement("div");
+                            points.className="all-preds-points";
+                            points.textContent=`${p>0?"+":""}${p} p`;
+                            cell.appendChild(points);
+                        }
                     }
 
                     setIsolatedPredictionResultClass(cell, h, a, match);
@@ -317,20 +329,28 @@ function renderAllPredictions() {
             const h = Number(prediction.home_score);
             const a = Number(prediction.away_score);
 
-            const score = document.createElement("div");
-            score.className = "all-preds-score";
-            score.textContent = `${h} – ${a}`;
+            const score=document.createElement("div");
+            score.className="all-preds-score";
 
+            const home=document.createElement("div");
+            home.textContent=h;
+
+            const away=document.createElement("div");
+            away.textContent=a;
+
+            score.appendChild(home);
+            score.appendChild(away);
             cell.appendChild(score);
 
-            if (prediction.points !== null) {
-                const points = document.createElement("div");
-                points.className = "all-preds-points";
+            if(prediction.points!==null&&prediction.points!==undefined){
+                const p=Number(prediction.points);
 
-                const p = Number(prediction.points);
-                points.textContent = `${p > 0 ? "+" : ""}${p} p`;
-
-                cell.appendChild(points);
+                if(!Number.isNaN(p)){
+                    const points=document.createElement("div");
+                    points.className="all-preds-points";
+                    points.textContent=`${p>0?"+":""}${p} p`;
+                    cell.appendChild(points);
+                }
             }
 
             setIsolatedPredictionResultClass(cell, h, a, match);
@@ -354,26 +374,28 @@ function renderAllPredictions() {
 }
 
 // Egen funktion för att sätta rätt isolerade färg-klasser
-function setIsolatedPredictionResultClass(cell, predictionHome, predictionAway, match) {
-    const resultExists = match.result_home_score !== null && match.result_away_score !== null;
-    if (!resultExists) return;
+function setIsolatedPredictionResultClass(cell,predictionHome,predictionAway,match){
+    const resultExists=match.result_home_score!==null&&match.result_away_score!==null;
+    if(!resultExists)return;
 
-    const resultHome = Number(match.result_home_score);
-    const resultAway = Number(match.result_away_score);
+    const resultHome=Number(match.result_home_score);
+    const resultAway=Number(match.result_away_score);
 
-    // Exakt resultat
-    if (predictionHome === resultHome && predictionAway === resultAway) {
+    if(predictionHome===resultHome&&predictionAway===resultAway){
         cell.classList.add("all-preds-exact");
         return;
     }
 
-    // Rätt vinnare / oavgjort
-    if (getMatchOutcome(predictionHome, predictionAway) === getMatchOutcome(resultHome, resultAway)) {
+    if(predictionHome-predictionAway===resultHome-resultAway){
+        cell.classList.add("all-preds-goaldiff");
+        return;
+    }
+
+    if(getMatchOutcome(predictionHome,predictionAway)===getMatchOutcome(resultHome,resultAway)){
         cell.classList.add("all-preds-winner");
         return;
     }
 
-    // Fel vinnare
     cell.classList.add("all-preds-wrong");
 }
 
@@ -513,10 +535,10 @@ document.addEventListener("keydown", event => {
     }
 });
 
-function getPointsClass(points) {
-    if (points >= 3) return "prediction-points-exact";
-    if (points > 0) return "prediction-points-correct";
-    return "prediction-points-wrong";
+function getPointsClass(points){
+    if(points>=3)return"all-preds-exact";
+    if(points===2)return"all-preds-goaldiff";
+    if(points===1)return"all-preds-winner";
+    return"prediction-points-wrong";
 }
-
 loadAllPredictions();

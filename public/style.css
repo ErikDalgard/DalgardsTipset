@@ -1121,38 +1121,69 @@ input[type="checkbox"] {
    Prediction grid – Matchinfo
    --------------------------------------------------------- */
 
-.today-match-info {
-  display: flex;
-  flex-direction: column;
+.today-match-info{
+  display:grid;
+  grid-template-columns:55px 1fr 30px;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px;
+  background:var(--color-bg);
+  border-radius:var(--radius-sm);
+}
 
-  gap: 2px;
+.today-match-time{
+  font-size:0.85rem;
+  font-weight:600;
+}
 
-  padding: 4px 0;
+.today-match-teams{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.today-match-result{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  font-weight:700;
 }
 
 
 /* ---------------------------------------------------------
    Prediction grid – Celler
    --------------------------------------------------------- */
+.today-prediction{
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 42px;
+    padding: 10px 20px;
+    background: var(--color-bg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    font-weight: 600;
+    color: var(--color-text);
+}
 
-.today-prediction {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.today-prediction-score{
+    grid-column: 2; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+}
 
-  min-height: 42px;
-
-  padding: 10px;
-
-  background: var(--color-bg);
-
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-
-  box-sizing: border-box;
-
-  font-weight: 600;
-  color: var(--color-text);
+.today-prediction-points{
+    position:absolute;
+    right:12px;
+    font-size:.7rem;
+    font-weight:600;
+    opacity:.75;
+    white-space:nowrap;
 }
 
 .my-prediction {
@@ -1167,28 +1198,36 @@ input[type="checkbox"] {
    Prediction result
    --------------------------------------------------------- */
 
-.prediction-exact {
-  background: var(--color-primary);
-
-  color: white;
-
-  border-color: var(--color-primary);
+.prediction-exact{
+    background:var(--color-primary-dark);
+    color:white;
+    border-color:var(--color-primary-dark);
 }
 
-.prediction-winner {
-  background: var(--color-primary-light);
-
-  color: var(--color-primary-dark);
-
-  border-color: var(--color-primary);
+.prediction-goaldiff{
+    background:#3fa66b;
+    color:white;
+    border-color:#3fa66b;
 }
 
-.prediction-wrong {
-  background: #fdeaea;
+.prediction-winner{
+    background:var(--color-primary-light);
+    color:var(--color-primary-dark);
+    border-color:var(--color-primary);
+}
 
-  color: var(--color-danger);
+.prediction-wrong{
+    background:#fdeaea;
+    color:var(--color-danger);
+    border-color:#f1b5b5;
+}
 
-  border-color: #f1b5b5;
+.prediction-points{
+    display:block;
+    font-size:0.7em;
+    font-weight:600;
+    margin-top:2px;
+    opacity:0.8;
 }
 
 
@@ -1360,34 +1399,26 @@ input[type="checkbox"] {
   border-bottom: none;
 }
 
-.all-preds-match-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  gap: 3px;
+.all-preds-match-info{
+  display:grid;
+  grid-template-columns:1fr 25px;
+  align-items:center;
+  gap:8px;
 }
 
-.all-preds-teams {
-  font-weight: 600;
-  color: var(--color-text);
+
+.all-preds-teams{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
 }
 
-.all-preds-time {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.all-preds-result {
-  font-size: 1rem;
-
-  font-weight: 600;
-
-  color: var(--color-text-muted);
-
-  opacity: 0.7;
-
-  line-height: 1.2;
+.all-preds-result{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  font-weight:700;
 }
 
 
@@ -1395,49 +1426,36 @@ input[type="checkbox"] {
    Alla tips – Celler
    --------------------------------------------------------- */
 
-.all-preds-cell {
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 2px;
-
-  min-height: 52px;
-
-  padding: 8px 10px;
-
-  background: var(--color-bg);
-
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-
-  box-sizing: border-box;
-
-  color: var(--color-text);
-
-  font-weight: 600;
-
-  text-align: center;
+.all-preds-cell{
+    position:relative;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    min-height:42px;
+    padding:10px 20px;
+    background:var(--color-bg);
+    border:1px solid transparent;
+    border-radius:var(--radius-sm);
+    box-sizing:border-box;
+    font-weight:600;
+    color:var(--color-text);
 }
 
-.all-preds-score {
-  font-size: 0.95rem;
-
-  font-weight: 600;
-
-  line-height: 1.2;
+.all-preds-score{
+    grid-column:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    line-height:1.2;
 }
 
-.all-preds-points {
-  font-size: 0.7rem;
-
-  font-weight: 500;
-
-  line-height: 1;
-
-  opacity: 0.75;
+.all-preds-points{
+    position:absolute;
+    right:12px;
+    font-size:.7rem;
+    font-weight:600;
+    opacity:.75;
+    white-space:nowrap;
 }
 
 .all-preds-cell-locked {
@@ -1449,39 +1467,36 @@ input[type="checkbox"] {
    Alla tips – Resultat
    --------------------------------------------------------- */
 
-.all-preds-exact {
-  background: var(--color-primary);
-
-  color: white;
-
-  border-color: var(--color-primary);
+.all-preds-exact{
+  background:var(--color-primary-dark);
+  color:white;
+  border-color:var(--color-primary-dark);
 }
 
-.all-preds-winner {
-  background: var(--color-primary-light);
-
-  color: var(--color-primary-dark);
-
-  border-color: var(--color-primary);
+.all-preds-goaldiff{
+  background:#3fa66b;
+  color:white;
+  border-color:#3fa66b;
 }
 
-.all-preds-wrong {
-  background: #fdeaea;
-
-  color: var(--color-danger);
-
-  border-color: #f1b5b5;
+.all-preds-winner{
+  background:var(--color-primary-light);
+  color:var(--color-primary-dark);
+  border-color:var(--color-primary);
 }
 
-.all-preds-no-matches {
-  text-align: center;
-
-  color: var(--color-text-muted);
-
-  padding: 20px;
-  margin: 0;
+.all-preds-wrong{
+  background:#fdeaea;
+  color:var(--color-danger);
+  border-color:#f1b5b5;
 }
 
+.all-preds-no-matches{
+  text-align:center;
+  color:var(--color-text-muted);
+  padding:20px;
+  margin:0;
+}
 
 /* ---------------------------------------------------------
    Alla tips – Klickbara celler
@@ -2006,6 +2021,23 @@ input[type="checkbox"] {
     width: 100%;
     max-width: 420px;
   }
+
+      .today-prediction,
+    .all-preds-cell{
+        min-height:40px;
+        padding:8px 12px;
+    }
+
+    .today-prediction-points,
+    .all-preds-points{
+        right:8px;
+        font-size:.65rem;
+    }
+
+    .today-prediction-score,
+    .all-preds-score{
+        font-size:.9rem;
+    }
 }
 
 
