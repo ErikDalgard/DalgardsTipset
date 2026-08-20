@@ -1518,7 +1518,6 @@ input[type="checkbox"] {
     0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-
 /* =========================================================
    20. PREDICTION MODAL
    ========================================================= */
@@ -1840,6 +1839,192 @@ input[type="checkbox"] {
   color: white;
 
   border-color: var(--color-danger);
+}
+
+
+/* =========================================================
+   UTSLAGSFRÅGOR
+   ========================================================= */
+
+.knockout-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.knockout-list-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 600px;
+  padding-bottom: 20px;
+}
+
+
+/* ---------------------------------------------------------
+   Utslagsfrågor – Grid
+   --------------------------------------------------------- */
+
+.knockout-row {
+  display: grid;
+  grid-template-columns:
+    180px
+    120px
+    repeat(
+      var(--user-count),
+      minmax(80px, 1fr)
+    );
+  gap: 16px;
+  align-items: center;
+}
+
+
+/* ---------------------------------------------------------
+   Header
+   --------------------------------------------------------- */
+
+.knockout-header-row {
+  margin-bottom: 10px;
+}
+
+.knockout-question-header,
+.knockout-header-name {
+  font-family: var(--font-family-display);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.knockout-header-name {
+  text-align: center;
+}
+
+.knockout-answer-header {
+  font-family: var(--font-family-display);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+  text-align: center;
+}
+
+.knockout-correct-answer {
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+
+/* ---------------------------------------------------------
+   Frågor
+   --------------------------------------------------------- */
+
+.knockout-question-row {
+  padding: 12px 0;
+}
+
+.knockout-question-info {
+  min-width: 0;
+}
+
+.knockout-question-label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+
+/* ---------------------------------------------------------
+   Celler
+   --------------------------------------------------------- */
+
+.knockout-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  background: var(--color-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.knockout-answer {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   Mitt eget svar
+   --------------------------------------------------------- */
+
+.knockout-cell-my {
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Låsta svar
+   --------------------------------------------------------- */
+
+.knockout-cell-locked {
+  color: var(--color-text-muted);
+}
+
+
+/* ---------------------------------------------------------
+   Rätt / fel
+   --------------------------------------------------------- */
+
+.knockout-correct {
+  background: #3fa66b;
+  color: white;
+  border-color: #3fa66b;
+}
+
+.knockout-wrong {
+  background: #fdeaea;
+  color: var(--color-danger);
+  border-color: #f1b5b5;
+}
+
+
+/* ---------------------------------------------------------
+   Poäng
+   --------------------------------------------------------- */
+
+.knockout-points {
+  position: absolute;
+  right: 8px;
+  bottom: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   Inga frågor
+   --------------------------------------------------------- */
+
+.knockout-no-questions {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 20px;
+  margin: 0;
 }
 
 

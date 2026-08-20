@@ -28,7 +28,9 @@ export async function onRequestGet(context) {
           u.username,
 
           pa.answer_value AS prediction,
-          pa.points AS earned_points
+          pa.points AS earned_points,
+
+          t.start_date
 
       FROM prediction_questions pq
 

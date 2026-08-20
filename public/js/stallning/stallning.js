@@ -542,3 +542,146 @@ function getPointsClass(points){
     return"prediction-points-wrong";
 }
 loadAllPredictions();
+
+
+async function loadAllKnockoutQuestions(){
+    const response = await fetch("/api/user/knockout_questions");
+
+    if (!response.ok){
+        throw new Error("Kunde inte hämta utslagsfrågorna");
+    }
+
+    knockoutPredictions = await response.json();
+    renderAllKnockoutQuestions();
+}
+
+loadAllKnockoutQuestions();
+
+
+function renderAllKnockoutQuestions(){
+    const mainContainer=document.getElementById("knockout-questions");
+    mainContainer.innerHTML="";
+    mainContainer.className="knockout-wrapper";
+
+    if(knockoutPredictions.length===0){
+        const message=document.createElement("p");
+        message.className="knockout-no-questions";
+        message.textContent="Det finns inga utslagsfrågor ännu.";
+        mainContainer.appendChild(message);
+        return;
+    }
+
+    const users=[];
+    knockoutPredictions.forEach(prediction=>{
+        if(!users.some(user=>user.id===prediction.user_id)){
+            users.push({id:prediction.user_id,username:prediction.username});
+        }
+    });
+
+    const questionIds=[...new Set(knockoutPredictions.map(prediction=>prediction.question_id))];
+
+    const scrollWrapper=document.createElement("div");
+    scrollWrapper.className="knockout-scroll";
+
+    const list=document.createElement("div");
+    list.className="knockout-list-container";
+    list.style.setProperty("--user-count",users.length);
+
+    const headerRow=document.createElement("div");
+    headerRow.className="knockout-row knockout-header-row";
+
+    const questionHeader=document.createElement("div");
+    questionHeader.className="knockout-question-header";
+    questionHeader.textContent="Fråga";
+    headerRow.appendChild(questionHeader);
+
+    const answerHeader=document.createElement("div");
+    answerHeader.className="knockout-answer-header";
+    answerHeader.textContent="Svar";
+    headerRow.appendChild(answerHeader);
+
+    users.forEach(user=>{
+        const userHeader=document.createElement("div");
+        userHeader.className="knockout-header-name";
+        userHeader.textContent=user.id===myUserId?"Du":user.username;
+        headerRow.appendChild(userHeader);
+    });
+
+    list.appendChild(headerRow);
+
+    questionIds.forEach(questionId=>{
+        const questionPredictions=knockoutPredictions.filter(prediction=>prediction.question_id===questionId);
+        const question=questionPredictions[0];
+
+        const questionRow=document.createElement("div");
+        questionRow.className="knockout-row knockout-question-row";
+
+        const questionInfo=document.createElement("div");
+        questionInfo.className="knockout-question-info";
+        questionInfo.textContent=question.question;
+        questionRow.appendChild(questionInfo);
+
+        const correctAnswer=document.createElement("div");
+        correctAnswer.className="knockout-correct-answer";
+        correctAnswer.textContent=question.correct_answer??"–";
+        questionRow.appendChild(correctAnswer);
+
+        users.forEach(user=>{
+            const cell=document.createElement("div");
+            cell.className="knockout-cell";
+
+            const prediction=questionPredictions.find(p=>p.user_id===user.id);
+
+            if(user.id===myUserId){
+                cell.classList.add("knockout-cell-my");
+            }
+
+            const startDate=new Date(`${question.start_date}T00:00:00`);
+            const startDatePassed=new Date()>=startDate;
+
+            if(user.id!==myUserId&&!startDatePassed){
+                cell.classList.add("knockout-cell-locked");
+                cell.innerHTML=`
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                        <rect x="3" y="10" width="18" height="11" rx="2"></rect>
+                        <path d="M7 10V7a5 5 0 0 1 10 0v3"></path>
+                        <circle cx="12" cy="15.5" r="1"></circle>
+                    </svg>`;
+                questionRow.appendChild(cell);
+                return;
+            }
+
+            if(!prediction||prediction.prediction===null){
+                cell.textContent="–";
+                questionRow.appendChild(cell);
+                return;
+            }
+
+            const answer=document.createElement("div");
+            answer.className="knockout-answer";
+            answer.textContent=prediction.prediction;
+            cell.appendChild(answer);
+
+            if(prediction.correct_answer!==null&&prediction.correct_answer!==undefined&&prediction.earned_points!==null&&prediction.earned_points!==undefined){
+                const correct=prediction.prediction.trim().toLowerCase()===prediction.correct_answer.trim().toLowerCase();
+
+                cell.classList.add(correct?"knockout-correct":"knockout-wrong");
+
+                const points=document.createElement("div");
+                points.className="knockout-points";
+
+                const earnedPoints=Number(prediction.earned_points);
+                points.textContent=`${earnedPoints>0?"+":""}${earnedPoints} p`;
+
+                cell.appendChild(points);
+            }
+
+            questionRow.appendChild(cell);
+        });
+
+        list.appendChild(questionRow);
+    });
+
+    scrollWrapper.appendChild(list);
+    mainContainer.appendChild(scrollWrapper);
+}
