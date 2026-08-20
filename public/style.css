@@ -2242,3 +2242,35 @@ input[type="checkbox"] {
     height: 280px;
   }
 }
+
+.access-denied-card{
+    text-align:center;
+}
+
+.access-denied-icon{
+    font-size:3rem;
+    margin-bottom:10px;
+}
+
+.access-denied-card h1{
+    margin:0 0 12px;
+    font-family:var(--font-family-display);
+    font-size:2rem;
+}
+
+.access-denied-card p{
+    margin:6px 0;
+    font-size:1.1rem;
+}
+
+.access-denied-text{
+    color:var(--color-text-muted);
+    font-size:.9rem!important;
+    margin-bottom:24px!important;
+}
+
+.access-denied-card .login-btn{
+    display:block;
+    text-decoration:none;
+    box-sizing:border-box;
+}

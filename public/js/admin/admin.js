@@ -8,9 +8,31 @@ import { setupQuestionManagement } from "./questions.js"
   const user = await requireAuth();
   if (!user) return;
 
-  if (!user.is_admin) {
-    document.body.innerHTML = "<p>Du har inte behörighet att se den här sidan.</p>";
-    return;
+  if(!user.is_admin){
+      document.body.innerHTML=`
+          <main class="login-page">
+              <div class="login-brand">
+                  <img src="/icons/logo.png" alt="Dalgardstipset">
+              </div>
+
+              <div class="login-card access-denied-card">
+                  <div class="access-denied-icon">🚫</div>
+
+                  <h1>Hörredu!</h1>
+
+                  <p>Ajabaja, här får du inte vara...</p>
+
+                  <p class="access-denied-text">
+                      Du är ju inte admin!.
+                  </p>
+
+                  <a href="/" class="btn login-btn">
+                      Tillbaka
+                  </a>
+              </div>
+          </main>
+      `;
+      return;
   }
 
 })();
