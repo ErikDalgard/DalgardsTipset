@@ -1,6 +1,6 @@
 # Dalgardstipset
 
-A small football tournament tipping site made for me, my family and friends.
+A football prediction and competition site built for me, my family and friends.
 
 Players can predict match results, answer tournament questions and compete on a shared leaderboard. The project is public so feel free to fork it and adapt it for your own tournament.
 
@@ -103,10 +103,18 @@ See [`API.md`](API.md) for the current API documentation.
 > `API.md` is basically up to date with all routes, but don't treat it as the absolute source of truth.
 
 
-## Local development
+## Host your own tournament
+
+### Run locally
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/ErikDalgard/DalgardsTipset.git
+cd DalgardsTipset
+```
 
 Install dependencies:
-
 ```bash
 npm install
 ```
@@ -117,7 +125,7 @@ Initialize the local D1 database:
 npx wrangler d1 execute dalgardstipset-db --local --file=database/schema.sql
 ```
 
-For demo data:
+Seed the initial admin account:
 
 ```bash
 npx wrangler d1 execute dalgardstipset-db --local --file=database/seed.sql
@@ -131,13 +139,46 @@ npx wrangler pages dev
 
 That's basically it.
 
-The seed data includes a demo tournament and an admin account:
+The site will be available at http://localhost:8788.
 
-**Username:** `test`
-**Password:** `test`
+### Publish to the internet
 
-Log in and play around with the admin interface. You can create tournaments, teams, matches, prediction questions and scoring rules yourself.
-.
+To host your own tournament publicly:
+
+1. Fork the repository on GitHub.
+
+2. Seed a Cloudflare Pages project and a D1 database.
+
+3. Update the D1 database ID in `wrangler.toml` and configure the `DB` binding.
+
+4. Initialize the remote D1 database:
+
+```bash
+npx wrangler d1 execute <your-database-name> --remote --file=database/schema.sql
+```
+
+5. Create the initial admin account
+
+```bash
+npx wrangler d1 execute <your-database-name> --remote --file=database/seed.sql
+```
+
+6. Deploy the project with Wrangler:
+
+```bash
+npx wrangler pages deploy public
+```
+
+Once deployed, the site will be available at your Cloudflare Pages URL.
+
+### Initial admin account
+
+The seed data creates an initial admin account:
+
+Username: `test`
+Password: `test`
+
+You can use this account to log in and set up your tournament through the admin interface, including users, teams, matches, questions and scoring rules.
 
 ## Security
 
