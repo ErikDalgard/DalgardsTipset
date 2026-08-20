@@ -4,5 +4,5 @@ compatibility_date = "2026-08-14"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "fotbollstips-db"
-database_id = "e0d1b974-f75e-4722-bcf0-acce19221c7d"
+database_name = "dalgardstipset-db"
+database_id = "683f3dbb-2533-49c6-8690-ff0dee0e56cc"
