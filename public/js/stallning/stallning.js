@@ -1,3 +1,5 @@
+// ==================== STÄLLNING ====================
+
 async function loadStandings() {
     const list = document.getElementById("standings-list");
 
@@ -5,24 +7,16 @@ async function loadStandings() {
         const response = await fetch("/api/user/standings", { credentials: "same-origin" });
         if (!response.ok) throw new Error("Kunde inte hämta ställningen");
 
-        const data = await response.json();
-        const standings = data.standings;
-        const currentUserId = data.current_user_id;
-
+        const { standings, current_user_id: currentUserId } = await response.json();
         list.innerHTML = "";
 
         standings.forEach((player, index) => {
             const li = document.createElement("li");
-            li.className = "standings-item";
+            li.className = `standings-item${player.id === currentUserId ? " current-user" : ""}`;
 
             const position = document.createElement("span");
             position.className = "standings-position";
-            if (player.id === currentUserId) li.classList.add("current-user");
-
-            if (index === 0) position.textContent = "🥇";
-            else if (index === 1) position.textContent = "🥈";
-            else if (index === 2) position.textContent = "🥉";
-            else position.textContent = `${index + 1}.`;
+            position.textContent = ["🥇", "🥈", "🥉"][index] || `${index + 1}.`;
 
             const username = document.createElement("span");
             username.className = "standings-username";
@@ -32,9 +26,7 @@ async function loadStandings() {
             points.className = "standings-points";
             points.textContent = `${player.points} p`;
 
-            li.appendChild(position);
-            li.appendChild(username);
-            li.appendChild(points);
+            li.append(position, username, points);
             list.appendChild(li);
         });
     } catch (err) {
@@ -43,31 +35,40 @@ async function loadStandings() {
     }
 }
 
-loadStandings();
+
+// ==================== POÄNGGRAF ====================
 
 let pointsChart;
 let chartMode = "points";
 let chartPeriod = "all";
-
 
 async function loadPointsChart() {
     try {
         const response = await fetch("/api/user/standings_history", { credentials: "same-origin" });
         if (!response.ok) throw new Error("Kunde inte hämta poänghistorik");
 
-        const { current_user, data: history } = await response.json();
+        const { current_user: currentUserId, data: history } = await response.json();
         const now = new Date();
+
         const filteredHistory = chartPeriod === "all"
             ? history
-            : history.filter(x => now - new Date(x.date) <= chartPeriod * 24 * 60 * 60 * 1000);
+            : history.filter(x => now - new Date(x.date) <= chartPeriod * 86400000);
 
-        const canvas = document.getElementById("points-chart");
+        updateInsights(filteredHistory, currentUserId);
 
         if (pointsChart) pointsChart.destroy();
 
-        const users = [...new Map(filteredHistory.map(x => [x.user_id, { id: x.user_id, username: x.username }])).values()];
+        const users = [...new Map(
+            filteredHistory.map(x => [x.user_id, { id: x.user_id, username: x.username }])
+        ).values()];
+
         const dates = [...new Set(filteredHistory.map(x => x.date))];
-        const snapshots = dates.map(date => filteredHistory.filter(x => x.date === date).sort((a, b) => b.points - a.points));
+
+        const snapshots = dates.map(date =>
+            filteredHistory
+                .filter(x => x.date === date)
+                .sort((a, b) => b.points - a.points)
+        );
 
         const datasets = users.map(user => ({
             label: user.username,
@@ -80,11 +81,11 @@ async function loadPointsChart() {
                     : snapshot.findIndex(x => x.points === player.points) + 1;
             }),
             tension: 0.3,
-            borderWidth: user.id === current_user ? 4 : 2,
-            pointRadius: user.id === current_user ? 4 : 2,
+            borderWidth: user.id === currentUserId ? 4 : 2,
+            pointRadius: user.id === currentUserId ? 4 : 2
         }));
 
-        pointsChart = new Chart(canvas, {
+        pointsChart = new Chart(document.getElementById("points-chart"), {
             type: "line",
             data: {
                 labels: dates.map(date => {
@@ -102,7 +103,10 @@ async function loadPointsChart() {
                         beginAtZero: chartMode === "points",
                         reverse: chartMode === "rank",
                         ticks: { stepSize: 1 },
-                        title: { display: true, text: chartMode === "points" ? "Poäng" : "Placering" }
+                        title: {
+                            display: true,
+                            text: chartMode === "points" ? "Poäng" : "Placering"
+                        }
                     },
                     x: { title: { display: true, text: "Datum" } }
                 },
@@ -134,20 +138,6 @@ async function loadPointsChart() {
     }
 }
 
-document.getElementById("points-toggle").addEventListener("click", () => {
-    if (chartMode !== "points") {
-        chartMode = "points";
-        updateChartMode();
-    }
-});
-
-document.getElementById("rank-toggle").addEventListener("click", () => {
-    if (chartMode !== "rank") {
-        chartMode = "rank";
-        updateChartMode();
-    }
-});
-
 function updateChartMode() {
     const pointsBtn = document.getElementById("points-toggle");
     const rankBtn = document.getElementById("rank-toggle");
@@ -157,6 +147,21 @@ function updateChartMode() {
 
     loadPointsChart();
 }
+
+
+// ==================== GRAF-KONTROLLER ====================
+
+document.getElementById("points-toggle").addEventListener("click", () => {
+    if (chartMode === "points") return;
+    chartMode = "points";
+    updateChartMode();
+});
+
+document.getElementById("rank-toggle").addEventListener("click", () => {
+    if (chartMode === "rank") return;
+    chartMode = "rank";
+    updateChartMode();
+});
 
 document.querySelectorAll(".chart-period button").forEach(button => {
     button.addEventListener("click", () => {
@@ -172,31 +177,135 @@ document.querySelectorAll(".chart-period button").forEach(button => {
     });
 });
 
-loadPointsChart();
+document.getElementById("insights-toggle").addEventListener("click", () => {
+    const insights = document.getElementById("chart-insights");
+    const button = document.getElementById("insights-toggle");
+    const visible = !insights.hidden;
+
+    insights.hidden = visible;
+    button.textContent = visible ? "Visa insikter" : "Dölj insikter";
+});
+
+
+// ==================== INSIGHTS ====================
+
+function updateInsights(history, currentUserId) {
+    const personal = document.getElementById("personal-insights");
+    const tournament = document.getElementById("tournament-insights");
+
+    const dates = [...new Set(history.map(x => x.date))];
+
+    if (!dates.length) {
+        personal.innerHTML = "";
+        tournament.innerHTML = "";
+        return;
+    }
+
+    const first = history.filter(x => x.date === dates[0]);
+    const last = history.filter(x => x.date === dates.at(-1));
+
+    const getRank = (snapshot, userId) => {
+        const sorted = [...snapshot].sort((a, b) => b.points - a.points);
+        const player = sorted.find(x => x.user_id === userId);
+        return player ? sorted.findIndex(x => x.points === player.points) + 1 : null;
+    };
+
+    const startUser = first.find(x => x.user_id === currentUserId);
+    const currentUser = last.find(x => x.user_id === currentUserId);
+
+    if (startUser && currentUser) {
+        const startRank = getRank(first, currentUserId);
+        const currentRank = getRank(last, currentUserId);
+        const pointsChange = currentUser.points - startUser.points;
+        const rankChange = startRank - currentRank;
+
+        personal.innerHTML = `
+            <div class="insight">
+                <div class="insight-label">Poängförändring</div>
+                <div class="insight-value">${pointsChange >= 0 ? "+" : ""}${pointsChange}</div>
+                <div class="insight-label">senaste perioden</div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">Placering</div>
+                <div class="insight-value">#${currentRank}</div>
+                <div class="insight-label">nuvarande</div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">Placering</div>
+                <div class="insight-value">${rankChange > 0 ? "↑" : rankChange < 0 ? "↓" : "–"} ${Math.abs(rankChange)}</div>
+                <div class="insight-label">${rankChange === 0 ? "oförändrad" : "platser sedan periodens början"}</div>
+            </div>
+        `;
+    }
+
+    const players = last.map(player => {
+        const start = first.find(x => x.user_id === player.user_id);
+        const startRank = getRank(first, player.user_id);
+        const currentRank = getRank(last, player.user_id);
+
+        return {
+            ...player,
+            pointsChange: start ? player.points - start.points : 0,
+            rankChange: startRank - currentRank
+        };
+    });
+
+    const biggestClimber = [...players].sort((a, b) => b.rankChange - a.rankChange)[0];
+    const biggestPoints = [...players].sort((a, b) => b.pointsChange - a.pointsChange)[0];
+    const leader = [...players].sort((a, b) => b.points - a.points)[0];
+    const biggestDrop = [...players].sort((a, b) => a.rankChange - b.rankChange)[0];
+
+    tournament.innerHTML = `
+        <div class="insight">
+            <div class="insight-label">Största klättrare</div>
+            <div class="insight-value">${biggestClimber.username}</div>
+            <div class="insight-label">+${biggestClimber.rankChange} placeringar</div>
+        </div>
+        <div class="insight">
+            <div class="insight-label">Största poängökning</div>
+            <div class="insight-value">${biggestPoints.username}</div>
+            <div class="insight-label">+${biggestPoints.pointsChange} poäng</div>
+        </div>
+        <div class="insight">
+            <div class="insight-label">Ledare</div>
+            <div class="insight-value">${leader.username}</div>
+            <div class="insight-label">${leader.points} poäng</div>
+        </div>
+        <div class="insight">
+            <div class="insight-label">Största tapp</div>
+            <div class="insight-value">${biggestDrop.username}</div>
+            <div class="insight-label">−${Math.abs(biggestDrop.rankChange)} placeringar</div>
+        </div>
+    `;
+}
+
+
+// ==================== ALLA TIPS ====================
+
+let myUserId;
+let predictions = [];
 
 async function loadAllPredictions() {
     try {
         const response = await fetch("/api/user/all_predictions");
-        if (!response.ok) throw new Error("Kunde inte hämta ställningen");
+        if (!response.ok) throw new Error("Kunde inte hämta tipsen");
 
         const data = await response.json();
         myUserId = data.current_user_id;
         predictions = data.predictions;
 
         renderAllPredictions();
-    } catch (error) {
-        console.error("Fel vid hämtning: ", error);
+    } catch (err) {
+        console.error("Fel vid hämtning av tips:", err);
     }
 }
 
 function renderAllPredictions() {
     const mainContainer = document.getElementById("all-predictions");
-
     mainContainer.innerHTML = "";
-    // Ny isolerad klass för huvudcontainern
     mainContainer.className = "all-preds-wrapper";
 
-    if (predictions.length === 0) {
+    if (!predictions.length) {
         const message = document.createElement("p");
         message.className = "all-preds-no-matches";
         message.textContent = "Det finns inga tips ännu.";
@@ -204,32 +313,16 @@ function renderAllPredictions() {
         return;
     }
 
-    // =========================
-    // ALLA ANVÄNDARE
-    // =========================
-    const users = [];
-    predictions.forEach(prediction => {
-        if (!users.some(user => user.id === prediction.user_id)) {
-            users.push({
-                id: prediction.user_id,
-                username: prediction.username
-            });
-        }
-    });
+    const users = [...new Map(
+        predictions.map(p => [p.user_id, { id: p.user_id, username: p.username }])
+    ).values()];
 
-    // =========================
-    // SORTERA MATCHER
-    // =========================
-    const matchIds = [...new Set(predictions.map(p => p.match_id))];
-    matchIds.sort((a, b) => {
+    const matchIds = [...new Set(predictions.map(p => p.match_id))].sort((a, b) => {
         const matchA = predictions.find(p => p.match_id === a);
         const matchB = predictions.find(p => p.match_id === b);
         return new Date(matchA.kickoff_at) - new Date(matchB.kickoff_at);
     });
 
-    // =========================
-    // HUVUDCONTAINER & SCROLL
-    // =========================
     const scrollWrapper = document.createElement("div");
     scrollWrapper.className = "all-preds-scroll";
 
@@ -237,38 +330,27 @@ function renderAllPredictions() {
     list.className = "all-preds-list-container";
     list.style.setProperty("--user-count", users.length);
 
-    // =========================
-    // GLOBAL HEADER (Användarnamnen)
-    // =========================
     const headerRow = document.createElement("div");
     headerRow.className = "all-preds-row all-preds-header-row";
-
-    const emptyCorner = document.createElement("div");
-    headerRow.appendChild(emptyCorner);
+    headerRow.appendChild(document.createElement("div"));
 
     users.forEach(user => {
-        const userHeader = document.createElement("div");
-        userHeader.className = "all-preds-header-name";
-        userHeader.textContent = user.id === myUserId ? "Du" : user.username;
-        headerRow.appendChild(userHeader);
+        const header = document.createElement("div");
+        header.className = "all-preds-header-name";
+        header.textContent = user.id === myUserId ? "Du" : user.username;
+        headerRow.appendChild(header);
     });
 
     list.appendChild(headerRow);
 
     let currentDate = null;
 
-    // =========================
-    // MATCHER
-    // =========================
     matchIds.forEach(matchId => {
         const matchPredictions = predictions.filter(p => p.match_id === matchId);
         const match = matchPredictions[0];
         const date = new Date(match.kickoff_at);
         const dateKey = date.toLocaleDateString("sv-SE");
 
-        // =========================
-        // NYTT DATUM
-        // =========================
         if (dateKey !== currentDate) {
             currentDate = dateKey;
 
@@ -283,165 +365,39 @@ function renderAllPredictions() {
             list.appendChild(dateHeading);
         }
 
-        // =========================
-        // MATCH-RAD
-        // =========================
         const matchRow = document.createElement("div");
         matchRow.className = "all-preds-row all-preds-match-item";
 
-        // MATCHINFO
-        const matchInfo=document.createElement("div");
-        matchInfo.className="all-preds-match-info";
+        const matchInfo = document.createElement("div");
+        matchInfo.className = "all-preds-match-info";
 
-        const teams=document.createElement("div");
-        teams.className="all-preds-teams";
+        const teams = document.createElement("div");
+        teams.className = "all-preds-teams";
+        teams.innerHTML = `<div>${match.home_team}</div><div>${match.away_team}</div>`;
 
-        const homeTeam=document.createElement("div");
-        homeTeam.textContent=match.home_team;
+        const result = document.createElement("div");
+        result.className = "all-preds-result";
+        result.innerHTML = `<div>${match.result_home_score ?? "–"}</div><div>${match.result_away_score ?? "–"}</div>`;
 
-        const awayTeam=document.createElement("div");
-        awayTeam.textContent=match.away_team;
-
-        teams.appendChild(homeTeam);
-        teams.appendChild(awayTeam);
-
-        const result=document.createElement("div");
-        result.className="all-preds-result";
-
-        const resultHome=document.createElement("div");
-        resultHome.textContent=match.result_home_score??"–";
-
-        const resultAway=document.createElement("div");
-        resultAway.textContent=match.result_away_score??"–";
-
-        result.appendChild(resultHome);
-        result.appendChild(resultAway);
-
-        matchInfo.appendChild(teams);
-        matchInfo.appendChild(result);
-
+        matchInfo.append(teams, result);
         matchRow.appendChild(matchInfo);
-
-        // =========================
-        // PREDICTIONS
-        // =========================
-        const deadlinePassed = new Date() >= new Date(match.deadline_at);
 
         users.forEach(user => {
             const cell = document.createElement("div");
             cell.className = "all-preds-cell";
             const prediction = matchPredictions.find(p => p.user_id === user.id);
 
-            // DITT TIPS
             if (user.id === myUserId) {
                 cell.classList.add("all-preds-cell-my");
-
-                if (!prediction || prediction.home_score === null) {
-                    cell.textContent = "–";
-                } else {
-                    const h = Number(prediction.home_score);
-                    const a = Number(prediction.away_score);
-
-                    // Själva tipset
-                    const score=document.createElement("div");
-                    score.className="all-preds-score";
-
-                    const home=document.createElement("div");
-                    home.textContent=h;
-
-                    const away=document.createElement("div");
-                    away.textContent=a;
-
-                    score.appendChild(home);
-                    score.appendChild(away);
-                    cell.appendChild(score);
-
-                    if(prediction.points!==null&&prediction.points!==undefined){
-                        const p=Number(prediction.points);
-
-                        if(!Number.isNaN(p)){
-                            const points=document.createElement("div");
-                            points.className="all-preds-points";
-                            points.textContent=`${p>0?"+":""}${p} p`;
-                            cell.appendChild(points);
-                        }
-                    }
-
-                    setIsolatedPredictionResultClass(cell, h, a, match);
-                    if ( match.result_home_score !== null &&
-                        match.result_away_score !== null
-                    ) {
-                        cell.classList.add("all-preds-cell-clickable");
-
-                        cell.addEventListener("click", () => {
-                            openPredictionModal(prediction, match);
-                        });
-                    }
-                }
-
-                matchRow.appendChild(cell);
-                return;
-            }
-
-            // ANDRAS TIPS – LÅSTA
-            if (!deadlinePassed) {
+                renderOwnPrediction(cell, prediction, match);
+            } else if (new Date() < new Date(match.deadline_at)) {
                 cell.classList.add("all-preds-cell-locked");
-                cell.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-                        <rect x="3" y="10" width="18" height="11" rx="2"></rect>
-                        <path d="M7 10V7a5 5 0 0 1 10 0v3"></path>
-                        <circle cx="12" cy="15.5" r="1"></circle>
-                    </svg>
-                `;
-                matchRow.appendChild(cell);
-                return;
+                cell.innerHTML = getLockIcon();
+            } else {
+                renderOtherPrediction(cell, prediction, match);
             }
 
-            // ANDRAS TIPS – ÖPPNA
-            if (!prediction || prediction.home_score === null) {
-                cell.textContent = "–";
-                matchRow.appendChild(cell);
-                return;
-            }
-
-            const h = Number(prediction.home_score);
-            const a = Number(prediction.away_score);
-
-            const score=document.createElement("div");
-            score.className="all-preds-score";
-
-            const home=document.createElement("div");
-            home.textContent=h;
-
-            const away=document.createElement("div");
-            away.textContent=a;
-
-            score.appendChild(home);
-            score.appendChild(away);
-            cell.appendChild(score);
-
-            if(prediction.points!==null&&prediction.points!==undefined){
-                const p=Number(prediction.points);
-
-                if(!Number.isNaN(p)){
-                    const points=document.createElement("div");
-                    points.className="all-preds-points";
-                    points.textContent=`${p>0?"+":""}${p} p`;
-                    cell.appendChild(points);
-                }
-            }
-
-            setIsolatedPredictionResultClass(cell, h, a, match);
             matchRow.appendChild(cell);
-            if (match.result_home_score !== null &&
-                match.result_away_score !== null
-            ) {
-                cell.classList.add("all-preds-cell-clickable");
-
-                cell.addEventListener("click", () => {
-                    openPredictionModal(prediction, match);
-                });
-            }
         });
 
         list.appendChild(matchRow);
@@ -451,30 +407,83 @@ function renderAllPredictions() {
     mainContainer.appendChild(scrollWrapper);
 }
 
-// Egen funktion för att sätta rätt isolerade färg-klasser
-function setIsolatedPredictionResultClass(cell,predictionHome,predictionAway,match){
-    const resultExists=match.result_home_score!==null&&match.result_away_score!==null;
-    if(!resultExists)return;
+function renderOwnPrediction(cell, prediction, match) {
+    if (!prediction || prediction.home_score === null) {
+        cell.textContent = "–";
+        return;
+    }
 
-    const resultHome=Number(match.result_home_score);
-    const resultAway=Number(match.result_away_score);
+    renderPredictionScore(cell, prediction, match);
+    cell.classList.add("all-preds-cell-clickable");
 
-    if(predictionHome===resultHome&&predictionAway===resultAway){
+    if (match.result_home_score !== null && match.result_away_score !== null) {
+        cell.addEventListener("click", () => openPredictionModal(prediction, match));
+    }
+}
+
+function renderOtherPrediction(cell, prediction, match) {
+    if (!prediction || prediction.home_score === null) {
+        cell.textContent = "–";
+        return;
+    }
+
+    renderPredictionScore(cell, prediction, match);
+
+    if (match.result_home_score !== null && match.result_away_score !== null) {
+        cell.classList.add("all-preds-cell-clickable");
+        cell.addEventListener("click", () => openPredictionModal(prediction, match));
+    }
+}
+
+function renderPredictionScore(cell, prediction, match) {
+    const home = Number(prediction.home_score);
+    const away = Number(prediction.away_score);
+
+    const score = document.createElement("div");
+    score.className = "all-preds-score";
+    score.innerHTML = `<div>${home}</div><div>${away}</div>`;
+    cell.appendChild(score);
+
+    if (prediction.points !== null && prediction.points !== undefined) {
+        const points = Number(prediction.points);
+
+        if (!Number.isNaN(points)) {
+            const pointsElement = document.createElement("div");
+            pointsElement.className = "all-preds-points";
+            pointsElement.textContent = `${points > 0 ? "+" : ""}${points} p`;
+            cell.appendChild(pointsElement);
+        }
+    }
+
+    setIsolatedPredictionResultClass(cell, home, away, match);
+}
+
+function getLockIcon() {
+    return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <rect x="3" y="10" width="18" height="11" rx="2"></rect>
+            <path d="M7 10V7a5 5 0 0 1 10 0v3"></path>
+            <circle cx="12" cy="15.5" r="1"></circle>
+        </svg>
+    `;
+}
+
+function setIsolatedPredictionResultClass(cell, predictionHome, predictionAway, match) {
+    if (match.result_home_score === null || match.result_away_score === null) return;
+
+    const resultHome = Number(match.result_home_score);
+    const resultAway = Number(match.result_away_score);
+
+    if (predictionHome === resultHome && predictionAway === resultAway) {
         cell.classList.add("all-preds-exact");
-        return;
-    }
-
-    if(predictionHome-predictionAway===resultHome-resultAway){
+    } else if (predictionHome - predictionAway === resultHome - resultAway) {
         cell.classList.add("all-preds-goaldiff");
-        return;
-    }
-
-    if(getMatchOutcome(predictionHome,predictionAway)===getMatchOutcome(resultHome,resultAway)){
+    } else if (getMatchOutcome(predictionHome, predictionAway) === getMatchOutcome(resultHome, resultAway)) {
         cell.classList.add("all-preds-winner");
-        return;
+    } else {
+        cell.classList.add("all-preds-wrong");
     }
-
-    cell.classList.add("all-preds-wrong");
 }
 
 function getMatchOutcome(home, away) {
@@ -483,30 +492,8 @@ function getMatchOutcome(home, away) {
     return "draw";
 }
 
-function addPredictionResultClass(cell, predictionHome, predictionAway, match) {
-    const resultExists = match.result_home_score !== null && match.result_away_score !== null;
-    if (!resultExists) return;
 
-    const resultHome = Number(match.result_home_score);
-    const resultAway = Number(match.result_away_score);
-
-    // Exakt resultat
-    if (predictionHome === resultHome && predictionAway === resultAway) {
-        cell.classList.add("prediction-exact");
-        return;
-    }
-
-    // Rätt vinnare / oavgjort
-    if (getMatchOutcome(predictionHome, predictionAway) === getMatchOutcome(resultHome, resultAway)) {
-        cell.classList.add("prediction-winner");
-        return;
-    }
-
-    // Fel vinnare
-    cell.classList.add("prediction-wrong");
-}
-
-
+// ==================== TIP-MODAL ====================
 
 function openPredictionModal(prediction, match) {
     const modal = document.getElementById("prediction-modal");
@@ -514,33 +501,18 @@ function openPredictionModal(prediction, match) {
 
     const resultHome = Number(match.result_home_score);
     const resultAway = Number(match.result_away_score);
-
     const predictionHome = Number(prediction.home_score);
     const predictionAway = Number(prediction.away_score);
-
     const points = Number(prediction.points);
 
-    let explanation = "";
+    const predictionOutcome = getMatchOutcome(predictionHome, predictionAway);
+    const resultOutcome = getMatchOutcome(resultHome, resultAway);
 
-    const predictionOutcome = getMatchOutcome(
-        predictionHome,
-        predictionAway
-    );
+    let explanation;
 
-    const resultOutcome = getMatchOutcome(
-        resultHome,
-        resultAway
-    );
-
-    const predictionDiff = predictionHome - predictionAway;
-    const resultDiff = resultHome - resultAway;
-
-    if (
-        predictionHome === resultHome &&
-        predictionAway === resultAway
-    ) {
+    if (predictionHome === resultHome && predictionAway === resultAway) {
         explanation = `${prediction.username} tippade exakt rätt resultat.`;
-    } else if (predictionDiff === resultDiff) {
+    } else if (predictionHome - predictionAway === resultHome - resultAway) {
         explanation = `${prediction.username} tippade rätt målskillnad.`;
     } else if (predictionOutcome === resultOutcome) {
         explanation = `${prediction.username} tippade rätt vinnare.`;
@@ -550,41 +522,20 @@ function openPredictionModal(prediction, match) {
 
     body.innerHTML = `
         <div class="prediction-modal-match">
-            <div class="prediction-modal-teams">
-                ${match.home_team} – ${match.away_team}
-            </div>
+            <div class="prediction-modal-teams">${match.home_team} – ${match.away_team}</div>
         </div>
-
-        <div class="prediction-modal-result-label">
-            Resultat
-        </div>
-
-        <div class="prediction-modal-result">
-            ${resultHome} – ${resultAway}
-        </div>
-
+        <div class="prediction-modal-result-label">Resultat</div>
+        <div class="prediction-modal-result">${resultHome} – ${resultAway}</div>
         <div class="prediction-modal-tip-label">
             ${prediction.username === "Erik" ? "Ditt tips" : `${prediction.username}s tips`}
         </div>
-
-        <div class="prediction-modal-tip">
-            ${predictionHome} – ${predictionAway}
-        </div>
-
+        <div class="prediction-modal-tip">${predictionHome} – ${predictionAway}</div>
         <div class="prediction-modal-points ${getPointsClass(points)}">
-            <div class="prediction-modal-points-value">
-                ${points > 0 ? "+" : ""}${points} p
-            </div>
+            <div class="prediction-modal-points-value">${points > 0 ? "+" : ""}${points} p</div>
         </div>
-
         <div class="prediction-modal-explanation">
-            <div class="prediction-modal-explanation-title">
-                Så räknades poängen
-            </div>
-
-            <p class="prediction-modal-explanation-text">
-                ${explanation}
-            </p>
+            <div class="prediction-modal-explanation-title">Så räknades poängen</div>
+            <p class="prediction-modal-explanation-text">${explanation}</p>
         </div>
     `;
 
@@ -594,172 +545,167 @@ function openPredictionModal(prediction, match) {
 
 function closePredictionModal() {
     const modal = document.getElementById("prediction-modal");
-
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
 }
 
-document
-    .getElementById("prediction-modal-close")
-    .addEventListener("click", closePredictionModal);
+function getPointsClass(points) {
+    if (points >= 3) return "all-preds-exact";
+    if (points === 2) return "all-preds-goaldiff";
+    if (points === 1) return "all-preds-winner";
+    return "prediction-points-wrong";
+}
 
-document
-    .querySelector(".prediction-modal-backdrop")
-    .addEventListener("click", closePredictionModal);
+document.getElementById("prediction-modal-close").addEventListener("click", closePredictionModal);
+document.querySelector(".prediction-modal-backdrop").addEventListener("click", closePredictionModal);
 
 document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-        closePredictionModal();
-    }
+    if (event.key === "Escape") closePredictionModal();
 });
 
-function getPointsClass(points){
-    if(points>=3)return"all-preds-exact";
-    if(points===2)return"all-preds-goaldiff";
-    if(points===1)return"all-preds-winner";
-    return"prediction-points-wrong";
-}
-loadAllPredictions();
 
+// ==================== UTSLAGSFRÅGOR ====================
 
-async function loadAllKnockoutQuestions(){
-    const response = await fetch("/api/user/knockout_questions");
+let knockoutPredictions = [];
 
-    if (!response.ok){
-        throw new Error("Kunde inte hämta utslagsfrågorna");
+async function loadAllKnockoutQuestions() {
+    try {
+        const response = await fetch("/api/user/knockout_questions");
+        if (!response.ok) throw new Error("Kunde inte hämta utslagsfrågorna");
+
+        knockoutPredictions = await response.json();
+        renderAllKnockoutQuestions();
+    } catch (err) {
+        console.error("Utslagsfrågor FEL:", err);
     }
-
-    knockoutPredictions = await response.json();
-    renderAllKnockoutQuestions();
 }
 
-loadAllKnockoutQuestions();
+function renderAllKnockoutQuestions() {
+    const mainContainer = document.getElementById("knockout-questions");
+    mainContainer.innerHTML = "";
+    mainContainer.className = "knockout-wrapper";
 
-
-function renderAllKnockoutQuestions(){
-    const mainContainer=document.getElementById("knockout-questions");
-    mainContainer.innerHTML="";
-    mainContainer.className="knockout-wrapper";
-
-    if(knockoutPredictions.length===0){
-        const message=document.createElement("p");
-        message.className="knockout-no-questions";
-        message.textContent="Det finns inga utslagsfrågor ännu.";
+    if (!knockoutPredictions.length) {
+        const message = document.createElement("p");
+        message.className = "knockout-no-questions";
+        message.textContent = "Det finns inga utslagsfrågor ännu.";
         mainContainer.appendChild(message);
         return;
     }
 
-    const users=[];
-    knockoutPredictions.forEach(prediction=>{
-        if(!users.some(user=>user.id===prediction.user_id)){
-            users.push({id:prediction.user_id,username:prediction.username});
-        }
-    });
+    const users = [...new Map(
+        knockoutPredictions.map(p => [p.user_id, { id: p.user_id, username: p.username }])
+    ).values()];
 
-    const questionIds=[...new Set(knockoutPredictions.map(prediction=>prediction.question_id))];
+    const questionIds = [...new Set(knockoutPredictions.map(p => p.question_id))];
 
-    const scrollWrapper=document.createElement("div");
-    scrollWrapper.className="knockout-scroll";
+    const scrollWrapper = document.createElement("div");
+    scrollWrapper.className = "knockout-scroll";
 
-    const list=document.createElement("div");
-    list.className="knockout-list-container";
-    list.style.setProperty("--user-count",users.length);
+    const list = document.createElement("div");
+    list.className = "knockout-list-container";
+    list.style.setProperty("--user-count", users.length);
 
-    const headerRow=document.createElement("div");
-    headerRow.className="knockout-row knockout-header-row";
+    const headerRow = document.createElement("div");
+    headerRow.className = "knockout-row knockout-header-row";
 
-    const questionHeader=document.createElement("div");
-    questionHeader.className="knockout-question-header";
-    questionHeader.textContent="Fråga";
-    headerRow.appendChild(questionHeader);
+    const questionHeader = document.createElement("div");
+    questionHeader.className = "knockout-question-header";
+    questionHeader.textContent = "Fråga";
 
-    const answerHeader=document.createElement("div");
-    answerHeader.className="knockout-answer-header";
-    answerHeader.textContent="Svar";
-    headerRow.appendChild(answerHeader);
+    const answerHeader = document.createElement("div");
+    answerHeader.className = "knockout-answer-header";
+    answerHeader.textContent = "Svar";
 
-    users.forEach(user=>{
-        const userHeader=document.createElement("div");
-        userHeader.className="knockout-header-name";
-        userHeader.textContent=user.id===myUserId?"Du":user.username;
-        headerRow.appendChild(userHeader);
+    headerRow.append(questionHeader, answerHeader);
+
+    users.forEach(user => {
+        const header = document.createElement("div");
+        header.className = "knockout-header-name";
+        header.textContent = user.id === myUserId ? "Du" : user.username;
+        headerRow.appendChild(header);
     });
 
     list.appendChild(headerRow);
 
-    questionIds.forEach(questionId=>{
-        const questionPredictions=knockoutPredictions.filter(prediction=>prediction.question_id===questionId);
-        const question=questionPredictions[0];
+    questionIds.forEach(questionId => {
+        const questionPredictions = knockoutPredictions.filter(p => p.question_id === questionId);
+        const question = questionPredictions[0];
 
-        const questionRow=document.createElement("div");
-        questionRow.className="knockout-row knockout-question-row";
+        const row = document.createElement("div");
+        row.className = "knockout-row knockout-question-row";
 
-        const questionInfo=document.createElement("div");
-        questionInfo.className="knockout-question-info";
-        questionInfo.textContent=question.question;
-        questionRow.appendChild(questionInfo);
+        const questionInfo = document.createElement("div");
+        questionInfo.className = "knockout-question-info";
+        questionInfo.textContent = question.question;
 
-        const correctAnswer=document.createElement("div");
-        correctAnswer.className="knockout-correct-answer";
-        correctAnswer.textContent=question.correct_answer??"–";
-        questionRow.appendChild(correctAnswer);
+        const correctAnswer = document.createElement("div");
+        correctAnswer.className = "knockout-correct-answer";
+        correctAnswer.textContent = question.correct_answer ?? "–";
 
-        users.forEach(user=>{
-            const cell=document.createElement("div");
-            cell.className="knockout-cell";
+        row.append(questionInfo, correctAnswer);
 
-            const prediction=questionPredictions.find(p=>p.user_id===user.id);
+        users.forEach(user => {
+            const cell = document.createElement("div");
+            cell.className = "knockout-cell";
 
-            if(user.id===myUserId){
-                cell.classList.add("knockout-cell-my");
-            }
+            const prediction = questionPredictions.find(p => p.user_id === user.id);
 
-            const startDate=new Date(`${question.start_date}T00:00:00`);
-            const startDatePassed=new Date()>=startDate;
+            if (user.id === myUserId) cell.classList.add("knockout-cell-my");
 
-            if(user.id!==myUserId&&!startDatePassed){
+            const startDate = new Date(`${question.start_date}T00:00:00`);
+
+            if (user.id !== myUserId && new Date() < startDate) {
                 cell.classList.add("knockout-cell-locked");
-                cell.innerHTML=`
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-                        <rect x="3" y="10" width="18" height="11" rx="2"></rect>
-                        <path d="M7 10V7a5 5 0 0 1 10 0v3"></path>
-                        <circle cx="12" cy="15.5" r="1"></circle>
-                    </svg>`;
-                questionRow.appendChild(cell);
+                cell.innerHTML = getLockIcon();
+                row.appendChild(cell);
                 return;
             }
 
-            if(!prediction||prediction.prediction===null){
-                cell.textContent="–";
-                questionRow.appendChild(cell);
+            if (!prediction || prediction.prediction === null) {
+                cell.textContent = "–";
+                row.appendChild(cell);
                 return;
             }
 
-            const answer=document.createElement("div");
-            answer.className="knockout-answer";
-            answer.textContent=prediction.prediction;
+            const answer = document.createElement("div");
+            answer.className = "knockout-answer";
+            answer.textContent = prediction.prediction;
             cell.appendChild(answer);
 
-            if(prediction.correct_answer!==null&&prediction.correct_answer!==undefined&&prediction.earned_points!==null&&prediction.earned_points!==undefined){
-                const correct=prediction.prediction.trim().toLowerCase()===prediction.correct_answer.trim().toLowerCase();
+            if (
+                prediction.correct_answer !== null &&
+                prediction.correct_answer !== undefined &&
+                prediction.earned_points !== null &&
+                prediction.earned_points !== undefined
+            ) {
+                const correct = prediction.prediction.trim().toLowerCase() === prediction.correct_answer.trim().toLowerCase();
 
-                cell.classList.add(correct?"knockout-correct":"knockout-wrong");
+                cell.classList.add(correct ? "knockout-correct" : "knockout-wrong");
 
-                const points=document.createElement("div");
-                points.className="knockout-points";
+                const points = document.createElement("div");
+                points.className = "knockout-points";
 
-                const earnedPoints=Number(prediction.earned_points);
-                points.textContent=`${earnedPoints>0?"+":""}${earnedPoints} p`;
+                const earnedPoints = Number(prediction.earned_points);
+                points.textContent = `${earnedPoints > 0 ? "+" : ""}${earnedPoints} p`;
 
                 cell.appendChild(points);
             }
 
-            questionRow.appendChild(cell);
+            row.appendChild(cell);
         });
 
-        list.appendChild(questionRow);
+        list.appendChild(row);
     });
 
     scrollWrapper.appendChild(list);
     mainContainer.appendChild(scrollWrapper);
 }
+
+
+// ==================== START ====================
+
+loadStandings();
+loadPointsChart();
+loadAllPredictions();
+loadAllKnockoutQuestions();

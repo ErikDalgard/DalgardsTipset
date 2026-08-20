@@ -57,9 +57,9 @@
   <section class="card">
       <div class="card-header">
           <div>
-              <h2>Poäng över tid</h2>
+              <h2>Statistik över tid</h2>
               <p class="section-description">
-                  Se hur spelarnas poäng utvecklas under turneringen.
+                  Se hur spelarnas poäng och placering utvecklas under turneringen.
               </p>
           </div>
           <button onclick="pointsChart.resetZoom()" class="btn btn-secondary">Återställ</button>
@@ -73,14 +73,31 @@
 
           <div class="chart-period">
               <button data-period="7" class="btn btn-secondary">7 dagar</button>
+              <button data-period="14" class="btn btn-secondary">14 dagar</button>
               <button data-period="30" class="btn btn-secondary">30 dagar</button>
-              <button data-period="90" class="btn btn-secondary">3 månader</button>
               <button data-period="all" class="btn">Hela</button>
           </div>
       </div>
-
       <div class="chart-container">
           <canvas id="points-chart"></canvas>
+      </div>
+
+      <div class="insights-toggle">
+          <button id="insights-toggle" class="btn btn-secondary">
+              Visa insikter
+          </button>
+      </div>
+
+      <div id="chart-insights" class="chart-insights" hidden>
+          <div class="insights-section">
+              <h3>Din utveckling</h3>
+              <div id="personal-insights" class="insights-grid"></div>
+          </div>
+
+          <div class="insights-section">
+              <h3>Turneringen</h3>
+              <div id="tournament-insights" class="insights-grid"></div>
+          </div>
       </div>
   </section>
 

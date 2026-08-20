@@ -2307,3 +2307,61 @@ input[type="checkbox"] {
         flex-wrap: wrap;
     }
 }
+.insights-toggle {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.chart-insights {
+    margin-top: 1.25rem;
+}
+
+.insights-section + .insights-section {
+    margin-top: 1.5rem;
+}
+
+.insights-section h3 {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.insight {
+    padding: 0.9rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.65rem;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.insight-label {
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: #6b7280;
+}
+
+.insight-value {
+    margin: 0.25rem 0;
+    font-size: 1.15rem;
+    font-weight: 650;
+    line-height: 1.2;
+}
+
+@media (max-width: 900px) {
+    .insights-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
