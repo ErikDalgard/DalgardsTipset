@@ -1432,7 +1432,8 @@ input[type="checkbox"] {
     display:grid;
     grid-template-columns:1fr auto 1fr;
     align-items:center;
-    min-height:42px;
+    justify-items:center;
+    min-height:62px;
     padding:10px 20px;
     background:var(--color-bg);
     border:1px solid transparent;
@@ -1459,8 +1460,12 @@ input[type="checkbox"] {
     white-space:nowrap;
 }
 
-.all-preds-cell-locked {
-  color: var(--color-text-muted);
+.all-preds-cell-locked{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:62px;
+    color:var(--color-text-muted);
 }
 
 
