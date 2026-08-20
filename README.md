@@ -4,7 +4,7 @@ A small football tournament tipping site made for me, my family and friends.
 
 Players can predict match results, answer tournament questions and compete on a shared leaderboard. The project is public so feel free to fork it and adapt it for your own tournament.
 
-> **Note:** This is a hobby project that was built fairly quickly. The code works, but it is definitely not polished. The rushed development is probably visible in some of the questionable code, shortcuts, and commit messages. Use at your own risk.
+> **Note:** This is a hobby project that was built fairly quickly. The code works, but it is definitely not polished. The rushed development is probably visible in some of the questionable code, shortcuts, and commit messages. The CSS in particular contains some legacy styles and has not been cleaned. Use at your own risk.
 
 
 ## Screenshots
@@ -100,7 +100,7 @@ The API is split into:
 
 See [`API.md`](API.md) for the current API documentation.
 
-> `API.md` is currently a little outdated, so don't treat it as the absolute source of truth.
+> `API.md` is basically up to date with all routes, but don't treat it as the absolute source of truth.
 
 
 ## Local development

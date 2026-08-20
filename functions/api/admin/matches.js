@@ -211,7 +211,7 @@ export async function onRequestPatch(context) {
   }
 }
 
-// --- DELETE TA BORT EN MATCH ---
+//DELETE: TA BORT EN MATCH
 
 export async function onRequestDelete(context) {
   const { error } = await requireAdmin(context);

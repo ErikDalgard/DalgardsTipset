@@ -1,7 +1,7 @@
 export async function hashPassword(password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const hash = await pbkdf2(password, salt);
-  // Vi sparar salt + hash tillsammans, separerade med ':', som en enda sträng
+  // Vi sparar salt o hash tillsammans
   return `${bufferToHex(salt)}:${bufferToHex(hash)}`;
 }
 

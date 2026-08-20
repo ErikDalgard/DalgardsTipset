@@ -1,7 +1,6 @@
 import { getCurrentUser } from "../../utils/auth.js";
 
 export async function onRequestGet(context) {
-    // Valfritt: Kontrollera att användaren är inloggad
     await getCurrentUser(context);
 
     const response = await context.env.DB.prepare(`

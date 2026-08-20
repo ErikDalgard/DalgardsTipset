@@ -2,7 +2,7 @@ let todaysMatches = [];
 let allUsers = [];
 let currentUserId = null;
 let currentUsername = null;
-let futureGames = []; // Lade till denna för att undvika "undefined"-fel i loadUpcomingMatches
+let futureGames = []; 
 let myPosition = null;
 let myPoints = null;
 
@@ -39,7 +39,7 @@ async function loadMyPoints(){
             throw new Error ("Kunde inte hämta mina poäng");
         }
 
-        const data = await response.json(); // Lade till 'const' här för snyggare kod
+        const data = await response.json();
         myPosition = data.position;
         myPoints = data.points;
         renderMyPoints();
@@ -75,9 +75,7 @@ function renderTodaysMatches() {
     const gridContainer = document.createElement("div");
     gridContainer.className = "matches-grid";
 
-    // =================================================
-    // SORTERA ANVÄNDARE (Du hamnar först)
-    // =================================================
+    // SORTERA ANVÄNDARE
     const usersToRender = [...allUsers].sort((a, b) => {
         if (a.id === currentUserId) return -1;
         if (b.id === currentUserId) return 1;
@@ -87,9 +85,7 @@ function renderTodaysMatches() {
     // Sätt upp Grid-kolumner dynamiskt beroende på antal användare
     gridContainer.style.gridTemplateColumns = `2fr repeat(${usersToRender.length}, minmax(70px, 1fr))`;
 
-    // =================================================
     // HEADER
-    // =================================================
     const matchHeader = document.createElement("div");
     matchHeader.className = "header-title";
     matchHeader.textContent = "Match";
@@ -98,14 +94,11 @@ function renderTodaysMatches() {
     usersToRender.forEach(user => {
         const userHeader = document.createElement("div");
         userHeader.className = "today-user-column header-name";
-        // Kalla inloggad användare för "Du", annars deras namn
         userHeader.textContent = user.id === currentUserId ? "Du" : user.username;
         gridContainer.appendChild(userHeader);
     });
 
-    // =================================================
     // MATCHER & RADER
-    // =================================================
     const matchIds = [...new Set(todaysMatches.map(match => match.match_id))];
 
     matchIds.forEach(matchId => {
@@ -152,9 +145,7 @@ function renderTodaysMatches() {
         matchInfo.appendChild(result);
 
         gridContainer.appendChild(matchInfo);
-        // =================================================
         // TIPS (Loopar alla användare på samma sätt)
-        // =================================================
         usersToRender.forEach(user => {
             const cell = document.createElement("div");
             cell.className = "today-prediction";

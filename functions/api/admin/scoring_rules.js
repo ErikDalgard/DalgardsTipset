@@ -18,8 +18,7 @@ export async function onRequestGet(context) {
   });
 }
 
-// POST: sätter/uppdaterar EN regel i taget (rule_type + points)
-// Upsert - skapar raden om den inte finns, annars uppdaterar värdet.
+// POST: uppdaterar en regel i taget 
 export async function onRequestPost(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;

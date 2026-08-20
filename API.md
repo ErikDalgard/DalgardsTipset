@@ -275,18 +275,17 @@ Deletes a tournament.
   "id": 5
 }
 ```
-
 ---
 
 ## Prediction Questions
 
 ### GET `/api/admin/prediction_question?tournament_id=X`
 
-Returns all prediction questions for a tournament.
+Returns all questions for a tournament.
 
 ### POST `/api/admin/prediction_question`
 
-Creates a prediction question.
+Creates a question.
 
 ```json
 {
@@ -297,7 +296,7 @@ Creates a prediction question.
 
 ### PATCH `/api/admin/prediction_question`
 
-Updates a prediction question.
+Updates a  question.
 
 ```json
 {
@@ -308,7 +307,7 @@ Updates a prediction question.
 
 ### DELETE `/api/admin/prediction_question`
 
-Deletes a prediction question.
+Deletes a question.
 
 ```json
 {
@@ -318,15 +317,27 @@ Deletes a prediction question.
 
 ---
 
-## Question Results
+**## Question Results**
 
-### GET `/api/admin/question_result?question_id=X`
+**### GET `/api/admin/question_result?question_id=X`**
 
 Returns the correct answer for a prediction question.
 
-### POST `/api/admin/question_result`
+The response is an array containing the matching result.
 
-Creates the correct answer.
+**### Missing `question_id`**
+
+**Status:** `400`
+
+```json
+{
+  "error": "question_id krävs"
+}
+```
+
+**### POST `/api/admin/question_result`**
+
+Creates the correct answer for a prediction question.
 
 ```json
 {
@@ -335,9 +346,21 @@ Creates the correct answer.
 }
 ```
 
-### PATCH `/api/admin/question_result`
+Both `question_id` and `correct_answer_value` are required.
 
-Updates the correct answer.
+When the correct answer is created, the points for all existing answers to the question are recalculated.
+
+**### Success**
+
+```json
+{
+  "id": 15
+}
+```
+
+**### PATCH `/api/admin/question_result`**
+
+Creates or updates the correct answer.
 
 ```json
 {
@@ -346,15 +369,62 @@ Updates the correct answer.
 }
 ```
 
+If a result already exists for the question, its `correct_answer_value` is updated. Otherwise, a new result is created.
+
+The points for all existing answers to the question are recalculated.
+
+### Success
+
+```json
+{
+  "success": true,
+  "question_id": 10,
+  "correct_answer_value": "Argentina"
+}
+```
+
 ### DELETE `/api/admin/question_result`
 
-Deletes the correct answer.
+Deletes the correct answer for a prediction question.
 
 ```json
 {
   "question_id": 10
 }
 ```
+
+All points for user answers to the question are reset to `null`.
+
+### Success**
+
+```json
+{
+  "success": true,
+  "question_id": 10,
+  "deleted": true
+}
+```
+
+`deleted` is `false` if no correct answer existed for the question.
+
+### Invalid input
+
+**Status:** `400`
+
+```json
+{
+  "error": "question_id krävs"
+}
+```
+
+For `POST` and `PATCH`, the error is returned if either `question_id` or `correct_answer_value` is missing.
+
+### Server/database error
+
+**Status:** `500`
+
+The response contains an `error` message and a `details` field containing the database/server error.
+
 
 ---
 
@@ -409,11 +479,26 @@ Deletes a user.
 
 ---
 
+## Scoring Rules
+
+### GET `/api/admin/scoring_rules?tournament_id=X`
+
+Returns the scoring rules for a tournament.
+
+
+```json
+[
+  {
+    "rule_type": "exact_score",
+    "points": 3
+  }
+]
+````
 # User API
 
 The `/api/user/` endpoints are used by the website.
 
-Some endpoints use the current session. The endpoints that explicitly check authentication return:
+Endpoints use the current session. The endpoints that explicitly check authentication return:
 
 **Status:** `401`
 
@@ -422,6 +507,47 @@ Some endpoints use the current session. The endpoints that explicitly check auth
   "error": "Inte inloggad"
 }
 ```
+
+### POST `/api/admin/scoring_rules`
+
+Creates or updates a scoring rule for a tournament.
+
+Only one rule is created or updated per request.
+
+The request uses `tournament_id` and `rule_type` to identify the rule. If the rule already exists for the tournament, its `points` value is updated.
+
+### Request body
+
+```json
+{
+  "tournament_id": 1,
+  "rule_type": "exact_score",
+  "points": 3
+}
+```
+
+`tournament_id` and `points` are required.
+
+### Success
+
+```json
+{
+  "success": true
+}
+```
+
+### Invalid input
+
+**Status:** `400`
+
+```json
+{
+  "error": "tournament_id och points krävs"
+}
+```
+
+The endpoint requires an authenticated administrator.
+
 
 ---
 
@@ -467,13 +593,12 @@ The matches:
 
 The results are sorted by kickoff time.
 
-> Note: the current implementation calls `getCurrentUser()` but does not explicitly reject unauthenticated requests.
 
 ---
 
 ## Match Predictions
 
-### GET `/api/user/match.predictions`
+### GET `/api/user/match_predictions`
 
 Returns the current user's saved match predictions.
 
@@ -487,11 +612,11 @@ Returns the current user's saved match predictions.
 ]
 ```
 
-### GET `/api/user/match.predictions?today=true`
+### GET `/api/user/match_predictions?today=true`
 
 Returns today's matches together with the current user's predictions.
 
-### PATCH `/api/user/match.predictions`
+### PATCH `/api/user/match_predictions`
 
 Creates or updates a prediction.
 
@@ -512,16 +637,24 @@ Possible errors include:
 - `404` — match does not exist
 
 ---
+## All Predictions
+
+### GET `/api/user/all_predictions`
+
+Returns all predictions for all participants in the active tournament, together with match information and results.
+
+Returns `401` if the user is not logged in.
+
+Returns `500` if the predictions cannot be retrieved.
+
 
 ## Prediction Questions
 
 ### GET `/api/user/prediction_questions`
 
-Returns all prediction questions for the active tournament.
+Returns all questions for the active tournament.
 
 The current user's answer is included as `answer`, or `null` if they have not answered yet.
-
-This endpoint requires authentication.
 
 ---
 
@@ -529,7 +662,7 @@ This endpoint requires authentication.
 
 ### PATCH `/api/user/prediction_answers`
 
-Creates or updates the current user's answer to a prediction question.
+Creates or updates the current user's answer to a question.
 
 ```json
 {
@@ -537,9 +670,6 @@ Creates or updates the current user's answer to a prediction question.
   "answer": "Brazil"
 }
 ```
-
-This endpoint requires authentication.
-
 Possible errors:
 
 - `400` — required fields are missing
@@ -548,6 +678,45 @@ Possible errors:
 
 ---
 
+## Knockout Questions
+
+### GET `/api/user/knockout_questions`
+
+Returns all prediction questions and all participants' answers for the active tournament, including the correct answer and earned points.
+
+Results are sorted by question and then username.
+
+Returns `500` if the data cannot be retrieved.
+
+
+---
+
+## Standings
+
+### GET `/api/user/standings`
+
+Returns the current standings for the active tournament, sorted by points descending.
+
+### GET `/api/user/standings?my_points=true`
+
+Returns only the current user's points and position in the standings.
+
+Returns `500` if the standings cannot be retrieved.
+
+
+---
+
+## Standings History**
+
+### GET `/api/user/standings_history`
+
+Returns the points history for all users in the active tournament.
+
+The response includes the current user's ID and points data sorted by match kickoff time and username.
+
+Returns `500` if the points history cannot be retrieved.
+
+
 ## Tournaments
 
 ### GET `/api/user/tournaments`
@@ -555,8 +724,6 @@ Possible errors:
 Returns the active tournament.
 
 Only one active tournament is returned.
-
-> Note: the current implementation calls `getCurrentUser()` but does not explicitly require authentication.
 
 ---
 
@@ -569,8 +736,6 @@ Returns all users.
 Only `id` and `username` are returned.
 
 Users are sorted alphabetically by username.
-
-> Note: the current implementation calls `getCurrentUser()` but does not explicitly require authentication.
 
 ---
 
