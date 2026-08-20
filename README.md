@@ -17,6 +17,8 @@ Players can predict match results, answer tournament questions and compete on a 
 
 ### Standings
 ![Standings](docs/standings.png)
+![Standings](docs/standings_2.png)
+
 
 ## Live site
 
