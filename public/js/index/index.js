@@ -351,7 +351,7 @@ function addPredictionResultClass(cell,predictionHome,predictionAway,match){
     cell.classList.add(className);
 
     const pointsElement=document.createElement("span");
-    pointsElement.className="prediction-points";
-    pointsElement.textContent=`+${points}`;
+    pointsElement.className="all-preds-points";
+    pointsElement.textContent=`${points>0 ? "+": ""}${points} p`;
     cell.appendChild(pointsElement);
 }
