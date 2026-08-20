@@ -175,42 +175,66 @@ export async function onRequestDelete(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;
 
-  const {id} = await context.request.json();
+  const { question_id } = await context.request.json();
 
-  if (!id) {
+  if (!question_id) {
     return new Response(
       JSON.stringify({
-        error: "id krävs"
+        error: "question_id krävs"
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
   }
 
   try {
-    const result = await context.env.DB.prepare(`
-        DELETE 
-        FROM 
-            prediction_questions
-        WHERE
-            id = ?
+    // Ta bort alla användarnas svar på frågan
+    await context.env.DB.prepare(`
+      DELETE FROM prediction_answers
+      WHERE question_id = ?
     `)
-      .bind(id).run();
+      .bind(question_id)
+      .run();
+
+    // Ta bort facit
+    await context.env.DB.prepare(`
+      DELETE FROM question_results
+      WHERE question_id = ?
+    `)
+      .bind(question_id)
+      .run();
+
+    // Ta bort själva frågan
+    const result = await context.env.DB.prepare(`
+      DELETE FROM prediction_questions
+      WHERE id = ?
+    `)
+      .bind(question_id)
+      .run();
 
     return new Response(
       JSON.stringify({
         success: true,
-        id
+        question_id,
+        deleted: result.meta.changes > 0
       }),
       {
-        headers: { "Content-Type": "application/json" }
+        status: 200,
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
 
   } catch (err) {
-    console.error("DELETE /api/admin/prediction_questions FEL:", err);
+    console.error(
+      "DELETE /api/admin/prediction_question FEL:",
+      err
+    );
 
     return new Response(
       JSON.stringify({
@@ -219,7 +243,9 @@ export async function onRequestDelete(context) {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
   }

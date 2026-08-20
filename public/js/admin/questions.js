@@ -50,7 +50,7 @@ export async function setupQuestionManagement() {
     document.getElementById("delete-edit-question-btn").addEventListener("click", async () => {
     const errorMessage = document.getElementById("question-error-message");
 
-    const confirmed = confirm("Är du säker på att du vill ta bort frågan?");
+    const confirmed = confirm("Är du säker på att du vill ta bort frågan? Alla poäng kopplad till denna kommer att tas bort.");
 
     if (!confirmed) {
         return;
@@ -67,7 +67,7 @@ export async function setupQuestionManagement() {
         },
         credentials: "same-origin",
         body: JSON.stringify({
-            id: editingQuestionsId
+            question_id: editingQuestionsId
         })
     });
 
@@ -190,91 +190,99 @@ export async function setupQuestionManagement() {
 
 
 
-    async function loadQuestions() {
-        const tournamentId = document.getElementById("tournament-select").value;
+ async function loadQuestions() {
+    const tournamentId = document.getElementById("tournament-select").value;
 
-        if (!tournamentId) return;
+    if (!tournamentId) return;
 
-        const response = await fetch(
-            `/api/admin/prediction_question?tournament_id=${tournamentId}`,
-            { credentials: "same-origin" }
-        );
+    const response = await fetch(`/api/admin/prediction_question?tournament_id=${tournamentId}`, {
+        credentials: "same-origin"
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        console.error("Kunde inte hämta frågor:", data);
+        return;
+    }
+
+    const questions = await response.json();
+
+    const list = document.getElementById("question-list");
+    list.innerHTML = "";
+    list.className = "list";
+
+    for (const question of questions) {
+        const li = document.createElement("li");
+        li.className = "question-item";
+
+        // FRÅGA
+        const label = document.createElement("span");
+        label.textContent = question.label;
+
+        // RÄTT SVAR
+        const correctAnswer = await getQuestionResult(question.id);
+
+        const answerInput = document.createElement("input");
+        answerInput.type = "text";
+        answerInput.value = correctAnswer ?? "";
+        answerInput.className = "question-answer-input";
+        answerInput.placeholder = "Rätt svar";
+
+        // Spara när rätt svar ändras
+        answerInput.addEventListener("change", async () => {
+            await saveQuestionResult(question.id, answerInput.value.trim());
+        });
+
+        // REDIGERA
+        const button = document.createElement("button");
+        button.textContent = "Redigera";
+        button.className = "btn btn-secondary";
+
+        button.addEventListener("click", () => {
+            editingQuestionsId = question.id;
+
+            document.getElementById("question-list-card").hidden = false;
+            document.getElementById("btn-edit-question").hidden = true;
+            document.getElementById("cancel-card-question-layout").hidden = false;
+            document.getElementById("delete-edit-question-btn").hidden = false;
+
+            document.getElementById("question").value = question.label;
+            document.getElementById("question-points").value = question.points;
+            document.getElementById("question-submit-btn").textContent = "Spara ändringar";
+        });
+
+        li.appendChild(label);
+        li.appendChild(answerInput);
+        li.appendChild(button);
+
+        list.appendChild(li);
+    }
+}
+
+async function getQuestionResult(questionId) {
+    try {
+        const response = await fetch(`/api/admin/question_result?question_id=${questionId}`, {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        const data = await response.json();
 
         if (!response.ok) {
-            const data = await response.json();
-            console.error("Kunde inte hämta frågor:", data);
-            return;
+            throw new Error(data.error || "Kunde inte hämta frågeresultat");
         }
 
-        const questions = await response.json();
+        if (data.length === 0) {
+            return "";
+        }
 
-        const list = document.getElementById("question-list");
-        list.innerHTML = "";
-        list.className = "list";
+        return data[0].correct_answer_value;
 
-        questions.forEach(question => {
-            const li = document.createElement("li");
-            li.className = "question-item";
-
-            // FRÅGA
-            const label = document.createElement("span");
-            label.textContent = question.label;
-
-            // RÄTT SVAR
-            const answerInput = document.createElement("input");
-            answerInput.type = "text";
-            answerInput.className = "question-answer-input";
-            answerInput.placeholder = "Rätt svar";
-
-            // Om det redan finns ett rätt svar
-            if (question.correct_answer_value) {
-                answerInput.value = question.correct_answer_value;
-            }
-
-            // Spara när rätt svar ändras
-            answerInput.addEventListener("change", async () => {
-                await saveQuestionResult(
-                    question.id,
-                    answerInput.value.trim()
-                );
-            });
-
-            // REDIGERA
-            const button = document.createElement("button");
-            button.textContent = "Redigera";
-            button.className = "btn btn-secondary";
-
-            button.addEventListener("click", () => {
-                editingQuestionsId = question.id;
-
-                // Öppna formuläret
-                const card = document.getElementById("question-list-card");
-                card.hidden = false;
-
-                // Dölj "Skapa fråga"-knappen
-                document.getElementById("btn-edit-question").hidden = true;
-
-                // Visa avbryt-knappen
-                document.getElementById("cancel-card-question-layout").hidden = false;
-
-                // Visa radera
-                document.getElementById("delete-edit-question-btn").hidden = false;
-
-                // Fyll i befintlig fråga samt hur mycket poäng
-                document.getElementById("question").value = question.label;
-                document.getElementById("question-points").value = question.points;
-
-                document.getElementById("question-submit-btn").textContent =
-                    "Spara ändringar";
-            });
-
-            li.appendChild(label);
-            li.appendChild(answerInput);
-            li.appendChild(button);
-
-            list.appendChild(li);
-        });
+    } catch (error) {
+        console.error("Kunde inte hämta frågeresultat:", error);
+        return null;
     }
+}
     
     async function saveQuestionResult(questionId, correctAnswer) {
         if (!correctAnswer) {

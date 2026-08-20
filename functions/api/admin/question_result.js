@@ -115,75 +115,86 @@ export async function onRequestPost(context) {
 }
 
 
-// PATCH - uppdatera  en fråga!
+// PATCH - skapa eller uppdatera rätt svar
 export async function onRequestPatch(context) {
-  const { error } = await requireAdmin(context);
-  if (error) return error;
+    const { error } = await requireAdmin(context);
 
-  const {
-    question_id,
-    correct_answer_value
-  } = await context.request.json();
+    if (error) return error;
 
-  if (!question_id || !correct_answer_value) {
-    return new Response(
-      JSON.stringify({
-        error: "question_id och correct_answer_value krävs"
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-  }
+    const {
+        question_id,
+        correct_answer_value
+    } = await context.request.json();
 
-  try {
-    const result = await context.env.DB.prepare(`
-        UPDATE question_results
-        SET
-            correct_answer_value = ?
-        WHERE 
-            question_id = ?
+    if (!question_id || !correct_answer_value) {
+        return new Response(
+            JSON.stringify({
+                error: "question_id och correct_answer_value krävs"
+            }),
+            {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+    }
 
-    `)
-      .bind(correct_answer_value,question_id).run();
+    try {
+        await context.env.DB.prepare(`
+            INSERT INTO question_results (
+                question_id,
+                correct_answer_value
+            )
+            VALUES (?, ?)
+            ON CONFLICT(question_id)
+            DO UPDATE SET
+                correct_answer_value = excluded.correct_answer_value
+        `)
+        .bind(question_id, correct_answer_value)
+        .run();
 
-    // Räkna om poäng för alla svar - både om facit sätts första gången
-    // via PATCH, och om admin rättar ett redan satt facit
-    await calculateAndSaveQuestionPoints(context.env.DB, question_id, correct_answer_value);
+        await calculateAndSaveQuestionPoints(
+            context.env.DB,
+            question_id,
+            correct_answer_value
+        );
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        question_id
-      }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+        return new Response(
+            JSON.stringify({
+                success: true,
+                question_id: question_id,
+                correct_answer_value: correct_answer_value
+            }),
+            {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
 
-  } catch (err) {
-    console.error("PATCH /api/admin/question_results FEL:", err);
+    } catch (err) {
+        console.error(
+            "PATCH /api/admin/question_result FEL:",
+            err
+        );
 
-    return new Response(
-      JSON.stringify({
-        error: "Kunde inte uppdatera fråga",
-        details: err.message
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-  }
+        return new Response(
+            JSON.stringify({
+                error: "Kunde inte spara rätt svar",
+                details: err.message
+            }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" }
+            }
+        );
+    }
 }
 
-// Delete - ta bort  en fråga!
+// DELETE - ta bort facit för en fråga och återställ poängen
 export async function onRequestDelete(context) {
   const { error } = await requireAdmin(context);
   if (error) return error;
 
-  const {question_id} = await context.request.json();
+  const { question_id } = await context.request.json();
 
   if (!question_id) {
     return new Response(
@@ -192,33 +203,50 @@ export async function onRequestDelete(context) {
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
   }
 
   try {
+    // Ta bort facit
     const result = await context.env.DB.prepare(`
-        DELETE 
-        FROM 
-            question_results
-        WHERE
-            question_id = ?
+      DELETE FROM question_results
+      WHERE question_id = ?
     `)
-      .bind(question_id).run();
+      .bind(question_id)
+      .run();
+
+    // Återställ poängen för alla svar på frågan
+    await context.env.DB.prepare(`
+      UPDATE prediction_answers
+      SET points = NULL
+      WHERE question_id = ?
+    `)
+      .bind(question_id)
+      .run();
 
     return new Response(
       JSON.stringify({
         success: true,
-        question_id
+        question_id,
+        deleted: result.meta.changes > 0
       }),
       {
-        headers: { "Content-Type": "application/json" }
+        status: 200,
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
 
   } catch (err) {
-    console.error("DELETE /api/admin/question_id FEL:", err);
+    console.error(
+      "DELETE /api/admin/prediction_question FEL:",
+      err
+    );
 
     return new Response(
       JSON.stringify({
@@ -227,12 +255,13 @@ export async function onRequestDelete(context) {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
   }
 }
-
 //hjälpfunktion
 async function calculateAndSaveQuestionPoints(db, question_id, correct_answer_value) {
   // Hämta frågans poängvärde
