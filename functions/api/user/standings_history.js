@@ -68,7 +68,9 @@ export async function onRequestGet(context) {
         `).all();
 
         return new Response(
-            JSON.stringify(results),
+            JSON.stringify(
+                {current_user: user.id,
+                data: results}),
             {
                 headers: {
                     "Content-Type": "application/json"

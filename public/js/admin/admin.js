@@ -23,7 +23,7 @@ import { setupQuestionManagement } from "./questions.js"
                   <p>Ajabaja, här får du inte vara...</p>
 
                   <p class="access-denied-text">
-                      Du är ju inte admin!.
+                      Du är ju inte admin!
                   </p>
 
                   <a href="/" class="btn login-btn">

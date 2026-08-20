@@ -45,47 +45,87 @@ async function loadStandings() {
 
 loadStandings();
 
+let pointsChart;
+let chartMode = "points";
+let chartPeriod = "all";
+
+
 async function loadPointsChart() {
     try {
         const response = await fetch("/api/user/standings_history", { credentials: "same-origin" });
         if (!response.ok) throw new Error("Kunde inte hämta poänghistorik");
 
-        const history = await response.json();
+        const { current_user, data: history } = await response.json();
+        const now = new Date();
+        const filteredHistory = chartPeriod === "all"
+            ? history
+            : history.filter(x => now - new Date(x.date) <= chartPeriod * 24 * 60 * 60 * 1000);
+
         const canvas = document.getElementById("points-chart");
 
-        // Hämta alla unika användare
-        const users = [...new Map(history.map(item => [item.user_id, { id: item.user_id, username: item.username }])).values()];
+        if (pointsChart) pointsChart.destroy();
 
-        // Hämta alla unika datum
-        const dates = [...new Map(history.map(item => [item.date, item.date])).values()];
+        const users = [...new Map(filteredHistory.map(x => [x.user_id, { id: x.user_id, username: x.username }])).values()];
+        const dates = [...new Set(filteredHistory.map(x => x.date))];
+        const snapshots = dates.map(date => filteredHistory.filter(x => x.date === date).sort((a, b) => b.points - a.points));
 
         const datasets = users.map(user => ({
             label: user.username,
-            data: dates.map(date => {
-                const player = history.find(item => item.user_id === user.id && item.date === date);
-                return player ? player.points : 0;
+            data: snapshots.map(snapshot => {
+                const player = snapshot.find(x => x.user_id === user.id);
+                if (!player) return 0;
+
+                return chartMode === "points"
+                    ? player.points
+                    : snapshot.findIndex(x => x.points === player.points) + 1;
             }),
-            tension: 0.3
+            tension: 0.3,
+            borderWidth: user.id === current_user ? 4 : 2,
+            pointRadius: user.id === current_user ? 4 : 2,
         }));
 
-        new Chart(canvas, {
+        pointsChart = new Chart(canvas, {
             type: "line",
             data: {
                 labels: dates.map(date => {
                     const d = new Date(date);
-                    return `${d.getDate()}/${d.getMonth() + 1}`;
+                    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
                 }),
                 datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: "Poäng" } },
+                    y: {
+                        beginAtZero: chartMode === "points",
+                        reverse: chartMode === "rank",
+                        ticks: { stepSize: 1 },
+                        title: { display: true, text: chartMode === "points" ? "Poäng" : "Placering" }
+                    },
                     x: { title: { display: true, text: "Datum" } }
                 },
                 plugins: {
-                    legend: { position: "bottom" }
+                    legend: { position: "bottom" },
+                    tooltip: {
+                        mode: "index",
+                        intersect: false,
+                        callbacks: {
+                            label: ctx => chartMode === "points"
+                                ? `${ctx.dataset.label}: ${ctx.raw} poäng`
+                                : `${ctx.dataset.label}: #${ctx.raw}`
+                        }
+                    },
+                    zoom: {
+                        pan: { enabled: true, mode: "x" },
+                        zoom: {
+                            wheel: { enabled: true },
+                            pinch: { enabled: true },
+                            drag: { enabled: true },
+                            mode: "x"
+                        }
+                    }
                 }
             }
         });
@@ -93,6 +133,44 @@ async function loadPointsChart() {
         console.error("Poänggraf FEL:", err);
     }
 }
+
+document.getElementById("points-toggle").addEventListener("click", () => {
+    if (chartMode !== "points") {
+        chartMode = "points";
+        updateChartMode();
+    }
+});
+
+document.getElementById("rank-toggle").addEventListener("click", () => {
+    if (chartMode !== "rank") {
+        chartMode = "rank";
+        updateChartMode();
+    }
+});
+
+function updateChartMode() {
+    const pointsBtn = document.getElementById("points-toggle");
+    const rankBtn = document.getElementById("rank-toggle");
+
+    pointsBtn.className = chartMode === "points" ? "btn" : "btn btn-secondary";
+    rankBtn.className = chartMode === "rank" ? "btn" : "btn btn-secondary";
+
+    loadPointsChart();
+}
+
+document.querySelectorAll(".chart-period button").forEach(button => {
+    button.addEventListener("click", () => {
+        chartPeriod = button.dataset.period === "all"
+            ? "all"
+            : Number(button.dataset.period);
+
+        document.querySelectorAll(".chart-period button").forEach(btn => {
+            btn.classList.toggle("btn-secondary", btn !== button);
+        });
+
+        loadPointsChart();
+    });
+});
 
 loadPointsChart();
 

@@ -54,25 +54,35 @@
 
 
 
-    <section class="card">
-        <div class="card-header">
-            <div>
-                <h2>Poäng över tid</h2>
-                <p class="section-description">
-                    Se hur spelarnas poäng utvecklas under turneringen.
-                </p>
-            </div>
-        </div>
+  <section class="card">
+      <div class="card-header">
+          <div>
+              <h2>Poäng över tid</h2>
+              <p class="section-description">
+                  Se hur spelarnas poäng utvecklas under turneringen.
+              </p>
+          </div>
+          <button onclick="pointsChart.resetZoom()" class="btn btn-secondary">Återställ</button>
+      </div>
 
-        <div class="chart-container">
-            <canvas id="points-chart"></canvas>
-        </div>
-    </section>
-    <div id="points-history-chart">
-    </div>
+      <div class="chart-controls">
+          <div class="chart-toggle">
+              <button id="points-toggle" class="btn">Poäng</button>
+              <button id="rank-toggle" class="btn btn-secondary">Placering</button>
+          </div>
 
+          <div class="chart-period">
+              <button data-period="7" class="btn btn-secondary">7 dagar</button>
+              <button data-period="30" class="btn btn-secondary">30 dagar</button>
+              <button data-period="90" class="btn btn-secondary">3 månader</button>
+              <button data-period="all" class="btn">Hela</button>
+          </div>
+      </div>
+
+      <div class="chart-container">
+          <canvas id="points-chart"></canvas>
+      </div>
   </section>
-
 
   <section class="card">
     <div class="card-header">
@@ -126,6 +136,7 @@
 <script src="js/shared/auth-guard.js"></script>
 <script src="js/shared/greeting.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0"></script>
 <script src="js/stallning/stallning.js"></script>
 
 </body>
