@@ -7,8 +7,7 @@ Players can predict match results, answer tournament questions and compete on a 
 > **Note:** This is a hobby project that was built fairly quickly. The code works, but it is definitely not polished. The rushed development is probably visible in some of the questionable code, shortcuts, and commit messages. The CSS in particular contains some legacy styles and has not been cleaned. Use at your own risk.
 
 ## Walkthrough
-<video src="docs/demo.mov" controls></video>
-
+https://github.com/user-attachments/assets/60ecefcb-7d79-4c6a-a0cd-02cc3bd5fb8c
 
 ## Live site
 
