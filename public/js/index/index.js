@@ -153,7 +153,7 @@ function renderTodaysMatches() {
 
             // Dölj andras tips om deadline inte passerat
             if (isLocked && user.id !== currentUserId) {
-                cell.classList.add("prediction-lock");
+                cell.classList.add("today-prediction-lock");
                 cell.innerHTML = `
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-label="Tips låst">
                         <rect x="3" y="10" width="18" height="11" rx="2"></rect>

@@ -672,13 +672,12 @@ input[type="checkbox"] {
 }
 
 .prediction-lock {
+  margin-left: 0;
+  color: var(--color-text-muted);
+
   display: flex;
   align-items: center;
   justify-content: center;
-
-  margin-left: 0.3rem;
-
-  color: var(--color-text-muted);
 }
 
 .prediction-lock svg {
@@ -1168,6 +1167,8 @@ input[type="checkbox"] {
     box-sizing: border-box;
     font-weight: 600;
     color: var(--color-text);
+    justify-items: center;
+
 }
 
 .today-prediction-score{
@@ -1192,6 +1193,19 @@ input[type="checkbox"] {
   color: var(--color-primary-dark);
 
   border-color: var(--color-border);
+}
+
+.today-prediction-lock {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+.today-prediction-lock svg {
+    grid-column: 2;
+    justify-self: center;
+    color: var(--color-text-muted);
 }
 
 

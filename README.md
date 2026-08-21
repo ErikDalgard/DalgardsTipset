@@ -6,23 +6,15 @@ Players can predict match results, answer tournament questions and compete on a 
 
 > **Note:** This is a hobby project that was built fairly quickly. The code works, but it is definitely not polished. The rushed development is probably visible in some of the questionable code, shortcuts, and commit messages. The CSS in particular contains some legacy styles and has not been cleaned. Use at your own risk.
 
-
-## Screenshots
-
-### Dashboard
-![Dashboard](docs/dashboard.png)
-
-### My predictions
-![My predictions](docs/mytips.png)
-
-### Standings
-![Standings](docs/standings.png)
-![Standings](docs/standings_2.png)
+## Walkthrough
+<video src="docs/demo.mov" controls></video>
 
 
 ## Live site
 
 https://dalgardstipset.pages.dev/
+
+The live site is used for my own tournaments, so the application requires a login.
 
 ## Tech
 
@@ -149,7 +141,7 @@ To host your own tournament publicly:
 
 1. Fork the repository on GitHub.
 
-2. Seed a Cloudflare Pages project and a D1 database.
+2. Set up a Cloudflare Pages project and a D1 database.
 
 3. Update the D1 database ID in `wrangler.toml` and configure the `DB` binding.
 
